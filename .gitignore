@@ -1,6 +1,8 @@
 #Natropie.zhp.pl rights
 # todo: add protected files
 
+gradle.bat
+
 *.iml
 .gradle
 /local.properties
