@@ -15,7 +15,9 @@ data class Category @ParcelConstructor constructor(
     @ColumnInfo(name="name")
     var name:String,
     @ColumnInfo(name="parent")
-    var parent:Int
+    var parent:Int,
+    @ColumnInfo(name="menu")
+    var mainMenu:Boolean = false
 ) : AEntity {
 
 }

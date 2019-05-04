@@ -12,7 +12,7 @@ interface CategoriesRepository{
     @Query("Select * from categories")
     fun getAll():List<Category>
 
-    @Query("Select * from categories where parent=0")
+    @Query("Select * from categories where menu=1")
     fun getAllForMenu():List<Category>
 
 

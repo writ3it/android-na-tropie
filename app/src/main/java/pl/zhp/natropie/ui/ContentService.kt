@@ -16,7 +16,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 private const val ACTION_GET_MENU = "pl.zhp.natropie.ui.action.GET_MENU"
-
+private const val ACTION_GET_POSTS = "pl.zhp.natropie.ui.action.GET_POSTS"
+private const val ACTION_GET_POSTS_CATEGORY_ID = "pl.zhp.natropie.ui.action.ACTION_GET_POSTS_CATEGORY_ID"
 
 
 /**
@@ -50,14 +51,22 @@ class ContentService : IntentService("ContentService") {
             ACTION_GET_MENU -> {
                 handleGetMenu()
             }
-
+            ACTION_GET_POSTS->{
+                val categoryId = intent.getIntExtra(ACTION_GET_POSTS_CATEGORY_ID)
+                handleGetPosts(categoryId)
+            }
         }
+    }
+
+    private fun handleGetPosts(categoryId: Int) {
+
     }
 
     /**
      * Get menu from db or internet
      */
     private fun handleGetMenu() {
+        // @TODO: przerobić na 1 request
         val categoriesList  = categoriesService!!.listCategories().execute().body()
         val categoriesMetaService = categoriesMetaService!!.listOfAllMetas().execute().body()
         var table = db?.categoriesRepository()
@@ -66,12 +75,12 @@ class ContentService : IntentService("ContentService") {
                 if (cc.id == meta.id){
                     if (meta.acf.containsKey("main_menu")){
                         if (meta.acf["main_menu"]=="true"){
-                            table!!.insert(cc)
+                            cc.mainMenu = true;
                         }
                     }
                 }
             }
-
+            table!!.insert(cc)
         }
         val categories = table!!.getAllForMenu()?.toTypedArray()
         sendResponse(RESPONSE_GET_MENU, listOf(ContentParam<Category>().apply{
