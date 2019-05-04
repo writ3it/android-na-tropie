@@ -10,8 +10,13 @@ import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import pl.zhp.natropie.db.WebsiteDBAdapter
+import pl.zhp.natropie.db.entities.Category
+import pl.zhp.natropie.db.tables.Categories
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+
+    private lateinit var db: WebsiteDBAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +35,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.syncState()
 
         nav_view.setNavigationItemSelectedListener(this)
+        db = WebsiteDBAdapter.Instance(applicationContext)
+        val category = Category()
+        val categories = Categories(db)
+        categories.Persist(category)
+    }
+
+    override fun onDestroy() {
+        WebsiteDBAdapter.Close()
+        super.onDestroy()
     }
 
     override fun onBackPressed() {
