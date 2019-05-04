@@ -55,6 +55,8 @@ freeline.py
 freeline/
 freeline_project_description.json
 
+/app/src/main/res/values/settings.xml
+
 # fastlane
 fastlane/report.xml
 fastlane/Preview.html

@@ -12,6 +12,10 @@ interface CategoriesRepository{
     @Query("Select * from categories")
     fun getAll():List<Category>
 
+    @Query("Select * from categories where parent=0")
+    fun getAllForMenu():List<Category>
+
+
     @Insert(onConflict=REPLACE)
     fun insert(data:Category)
 

@@ -6,7 +6,7 @@ import android.content.Context
 import pl.zhp.natropie.db.entities.Category
 import pl.zhp.natropie.db.repositories.CategoriesRepository
 
-@Database(entities= [Category::class], version=1)
+@Database(entities= [Category::class], version=2)
 abstract class NaTropieDB : RoomDatabase(){
 
     abstract fun categoriesRepository(): CategoriesRepository
