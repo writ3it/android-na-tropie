@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="API_URL">http://natropie.zhp.pl/api.php/wp/v2/</string>
-    <string name="META_API_URL">http://natropie.zhp.pl/api.php/acf/v3/</string>
-</resources>
