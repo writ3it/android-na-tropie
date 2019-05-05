@@ -4,12 +4,17 @@ import android.arch.persistence.db.SupportSQLiteOpenHelper
 import android.arch.persistence.room.*
 import android.content.Context
 import pl.zhp.natropie.db.entities.Category
+import pl.zhp.natropie.db.entities.Post
 import pl.zhp.natropie.db.repositories.CategoriesRepository
+import pl.zhp.natropie.db.repositories.PostsRepository
+import pl.zhp.natropie.db.types.DateConverter
 
-@Database(entities= [Category::class], version=3)
+@Database(entities= [Category::class, Post::class], version=5)
+@TypeConverters(DateConverter::class)
 abstract class NaTropieDB : RoomDatabase(){
 
     abstract fun categoriesRepository(): CategoriesRepository
+    abstract fun postsRepository(): PostsRepository
 
     companion object {
         private var INSTANCE: NaTropieDB? = null

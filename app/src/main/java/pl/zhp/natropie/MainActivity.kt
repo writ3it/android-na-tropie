@@ -3,7 +3,6 @@ package pl.zhp.natropie
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
@@ -17,6 +16,7 @@ import org.parceler.Parcels
 import pl.zhp.natropie.db.DBWorkerThread
 import pl.zhp.natropie.db.NaTropieDB
 import pl.zhp.natropie.db.entities.Category
+import pl.zhp.natropie.db.entities.Post
 import pl.zhp.natropie.ui.ContentService
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -44,7 +44,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.syncState()
         setMenu(nav_view.menu)
         nav_view.setNavigationItemSelectedListener(this)
-
+        ContentService.listenGetPosts(applicationContext, fun(context:Context?, intent:Intent?):Unit{
+            val posts = intent!!.getParcelableArrayExtra(ContentService.RESPONSE_VAR_POSTS).map{
+                Parcels.unwrap<Post>(it)
+            }
+            Log.i("!!!!!!!!!!!!!! Posty = ", posts.count().toString())
+        })
+        ContentService.getPosts(applicationContext)
     }
 
     override fun onDestroy() {
@@ -67,7 +73,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val categories = intent!!.getParcelableArrayExtra(ContentService.RESPONSE_VAR_MENU).map{
                     Parcels.unwrap<Category>(it)
                 }
-                Log.i("!!!!!!!!!!!!!!!",categories.count().toString())
                 var i = 0
                 for(category in categories){
                     menu?.add(0, Menu.FIRST+i, Menu.NONE, category.name)
