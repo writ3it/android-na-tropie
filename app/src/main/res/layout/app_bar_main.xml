@@ -16,14 +16,14 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:popupTheme="@style/AppTheme.PopupOverlay" >
+                android:background="@color/app_bar_background"
+                app:popupTheme="@style/AppTheme.PopupOverlay" app:titleTextColor="#00000000">
             <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
-                <ImageView android:layout_width="wrap_content"
-                           android:layout_height="fill_parent"
-                           app:srcCompat="@drawable/ic_menu_camera"
-                           android:layout_gravity="left"
-                />
+                <ImageView android:layout_width="match_parent"
+                           android:layout_height="match_parent"
+                           app:srcCompat="@drawable/nt_logo"
+
+                           android:baselineAlignBottom="false" android:scaleType="fitStart"/>
             </FrameLayout>
         </android.support.v7.widget.Toolbar>
 

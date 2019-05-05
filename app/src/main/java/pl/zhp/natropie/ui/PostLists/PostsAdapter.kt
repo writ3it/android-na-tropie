@@ -23,6 +23,7 @@ class PostsAdapter(context: Context,val objects: MutableList<Post>) :
         var view = super.getView(position, convertView, parent)
         val titleView = view.findViewById<TextView>(R.id.row_post_title)
         titleView.text = post.title
+        view.findViewById<TextView>(R.id.row_post_excerpt).text = post.excerpt
         return view
     }
 }

@@ -6,6 +6,7 @@ import org.parceler.Parcel
 import org.parceler.ParcelConstructor
 import pl.zhp.natropie.db.entities.Post
 import pl.zhp.natropie.db.types.DateConverter
+import pl.zhp.natropie.helpers.Text
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -27,7 +28,7 @@ data class PostResponse @ParcelConstructor constructor(
         return Post(id,date,link,
             title["rendered"]!!,
             content["rendered"]!!,
-            excerpt["rendered"]!!,
+            Text.stripHtml(excerpt["rendered"]!!),
             author,
             categories,
             featured_media,

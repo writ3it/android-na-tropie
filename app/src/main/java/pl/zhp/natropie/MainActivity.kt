@@ -115,12 +115,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // Handle navigation view item clicks here.
         when (item.itemId) {
 
-            R.id.nav_share -> {
 
-            }
-            R.id.nav_send -> {
-
-            }
         }
 
         drawer_layout.closeDrawer(GravityCompat.START)
