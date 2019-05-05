@@ -11,7 +11,6 @@ import java.util.*
 
 @Parcel(Parcel.Serialization.BEAN)
 @Entity(tableName="posts")
-@TypeConverters(CategoryIdsConverter::class)
 data class Post @ParcelConstructor constructor(
     @PrimaryKey(autoGenerate=false)
     var id:Int,

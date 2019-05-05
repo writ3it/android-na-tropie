@@ -7,10 +7,11 @@ import pl.zhp.natropie.db.entities.Category
 import pl.zhp.natropie.db.entities.Post
 import pl.zhp.natropie.db.repositories.CategoriesRepository
 import pl.zhp.natropie.db.repositories.PostsRepository
+import pl.zhp.natropie.db.types.CategoryIdsConverter
 import pl.zhp.natropie.db.types.DateConverter
 
-@Database(entities= [Category::class, Post::class], version=5)
-@TypeConverters(DateConverter::class)
+@Database(entities= [Category::class, Post::class], version=6)
+@TypeConverters(DateConverter::class,CategoryIdsConverter::class)
 abstract class NaTropieDB : RoomDatabase(){
 
     abstract fun categoriesRepository(): CategoriesRepository

@@ -12,11 +12,13 @@ import pl.zhp.natropie.R
 import pl.zhp.natropie.api.CategoriesMetaService
 import pl.zhp.natropie.api.CategoriesService
 import pl.zhp.natropie.api.PostsService
+import pl.zhp.natropie.api.responses.PostResponse
 import pl.zhp.natropie.api.types.DateSerializer
 import pl.zhp.natropie.db.NaTropieDB
 import pl.zhp.natropie.db.entities.AEntity
 import pl.zhp.natropie.db.entities.Category
 import pl.zhp.natropie.db.entities.Post
+import pl.zhp.natropie.db.types.NothingResponse
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
@@ -81,10 +83,7 @@ class ContentService : IntentService("ContentService") {
         for (post in postsList!!.iterator()){
             table!!.insert(post)
         }
-        sendResponse(RESPONSE_GET_POSTS, listOf(ContentParam<Post>().apply{
-            Name= RESPONSE_VAR_POSTS
-            Data = postsList.toTypedArray()
-        }))
+        sendResponse<NothingResponse>(RESPONSE_GET_POSTS)
     }
 
     /**
@@ -114,10 +113,12 @@ class ContentService : IntentService("ContentService") {
         }))
     }
 
-    private fun <T: AEntity>sendResponse(broadcastName: String, list: List<ContentParam<T>>) {
+    private fun <T: AEntity>sendResponse(broadcastName: String, list: List<ContentParam<T>>?=null) {
         val intent = Intent(broadcastName).apply {
-            for(param in list){
-                putExtra(param.Name,param.GetParcerable())
+            if (list!=null) {
+                for (param in list) {
+                    putExtra(param.Name, param.GetParcerable())
+                }
             }
         }
         LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)

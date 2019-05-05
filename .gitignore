@@ -57,6 +57,9 @@ freeline_project_description.json
 
 app/src/main/res/values/settings.xml
 settings.xml
+app/src/main/res/values/nt_colors.xml
+nt_colors.xml
+
 
 # fastlane
 fastlane/report.xml

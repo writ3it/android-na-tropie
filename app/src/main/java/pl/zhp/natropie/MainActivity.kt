@@ -7,34 +7,33 @@ import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.app_bar_main.*
+
 import android.view.Menu
 import android.view.MenuItem
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.app_bar_main.*
 import org.parceler.Parcels
 import pl.zhp.natropie.db.DBWorkerThread
 import pl.zhp.natropie.db.NaTropieDB
 import pl.zhp.natropie.db.entities.Category
 import pl.zhp.natropie.db.entities.Post
 import pl.zhp.natropie.ui.ContentService
+import pl.zhp.natropie.ui.PostLists.PostsAdapter
+import pl.zhp.natropie.ui.PostLists.PostsListPresenter
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener{
 
     private var db: NaTropieDB? = null
 
     private lateinit var thread: DBWorkerThread
 
+    private lateinit var postPresenter: PostsListPresenter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-
-        /*fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }*/
 
         val toggle = ActionBarDrawerToggle(
             this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
@@ -44,17 +43,41 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.syncState()
         setMenu(nav_view.menu)
         nav_view.setNavigationItemSelectedListener(this)
-        ContentService.listenGetPosts(applicationContext, fun(context:Context?, intent:Intent?):Unit{
-            val posts = intent!!.getParcelableArrayExtra(ContentService.RESPONSE_VAR_POSTS).map{
-                Parcels.unwrap<Post>(it)
-            }
-            Log.i("!!!!!!!!!!!!!! Posty = ", posts.count().toString())
-        })
-        ContentService.getPosts(applicationContext)
+        initPostList()
+    }
+
+    private lateinit var postsAdapter: PostsAdapter
+
+    private fun initPostList() {
+        postsAdapter = PostsAdapter(applicationContext, emptyList<Post>().toMutableList())
+        postsListView.adapter = postsAdapter
+        postPresenter = PostsListPresenter(applicationContext, NaTropieDB.getInstance(applicationContext)?.postsRepository()!!)
+        postPresenter.attachToAdapter(postsAdapter)
+        postPresenter.refresh()
+
+
+
+       /* postsAdapter = postPresenter.Bind("title", R.id.row_post_title).create()
+        postsListView.adapter = postsAdapter
+        ContentService.listenGetPosts(applicationContext,
+            fun(context: Context?, intent: Intent?):Unit {
+                val job = GlobalScope.launch {
+                    postPresenter.update()
+                }.on
+
+                postPresenter.refresh()
+                Log.i(">>>>>>>>>>>>","UPDATED")
+            })
+        ContentService.getPosts(applicationContext)*/
+
+        pullToRefresh.setOnRefreshListener {
+            ContentService.getPosts(applicationContext)
+        }
     }
 
     override fun onDestroy() {
         NaTropieDB.destroyInstance()
+        postPresenter.detachView()
         thread.quit()
         super.onDestroy()
     }
