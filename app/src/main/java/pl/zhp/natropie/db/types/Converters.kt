@@ -1,15 +1,22 @@
 package pl.zhp.natropie.db.types
 
-import android.icu.text.SimpleDateFormat
-// @TODO: skończyć
+import android.arch.persistence.room.TypeConverter
+import java.text.SimpleDateFormat
+import java.util.*
+
 class Converters {
+
     companion object {
-        fun fromTimestamp(value:Long)->String{
-            //val date =
-            return ""
+        private const val format = "yyyy-MM-ddThh:mm:ss"
+
+        @TypeConverter
+        fun fromTimestamp(value:Long):String{
+            val date = Date(value)
+            return SimpleDateFormat(format).format(date)
         }
-        fun dateToTimestamp(date:String)->Long{
-            val dateObj = SimpleDateFormat("yyyy-MM-ddThh:ii:ss").parse(date)
+        @TypeConverter
+        fun dateToTimestamp(date:String):Long{
+            val dateObj = SimpleDateFormat(format).parse(date)
             return dateObj.time
         }
     }
