@@ -10,5 +10,5 @@ Thanks goes out to all people:
 - ***Your name*** - some description of changes - [github username](https://github.com/writ3it)
 
 ## License
-This software is licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) excluding images and other graphical elements like colors which rights belongs to [NaTropie.zhp.pl](http://natropie.zhp.pl/).
+This software is licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) excluding images and other graphical elements like colors which rights belongs to [NaTropie.zhp.pl](http://natropie.zhp.pl/). Protected resources are not shared in the repository. 
 
