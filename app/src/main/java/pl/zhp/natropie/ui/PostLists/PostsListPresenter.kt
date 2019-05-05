@@ -2,13 +2,11 @@ package pl.zhp.natropie.ui.PostLists
 
 import android.content.Context
 import android.database.Cursor
+import android.provider.Contacts
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.SimpleCursorAdapter
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import pl.zhp.natropie.R
 import pl.zhp.natropie.db.entities.Post
 import pl.zhp.natropie.db.repositories.PostsRepository
@@ -25,7 +23,10 @@ class PostsListPresenter(val context: Context?, val table:PostsRepository){
 
     fun refresh(){
         scope.launch {
-            val data=table.getForMainPage()
+            val job = GlobalScope.async {
+                table.getForMainPage()
+            }
+            val data = job.await()
             adapter?.showPostsList(data)
         }
     }

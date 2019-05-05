@@ -7,6 +7,7 @@ import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
@@ -53,25 +54,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         postsListView.adapter = postsAdapter
         postPresenter = PostsListPresenter(applicationContext, NaTropieDB.getInstance(applicationContext)?.postsRepository()!!)
         postPresenter.attachToAdapter(postsAdapter)
-        postPresenter.refresh()
 
+        val respondend = false;
 
-
-       /* postsAdapter = postPresenter.Bind("title", R.id.row_post_title).create()
-        postsListView.adapter = postsAdapter
         ContentService.listenGetPosts(applicationContext,
             fun(context: Context?, intent: Intent?):Unit {
-                val job = GlobalScope.launch {
-                    postPresenter.update()
-                }.on
-
                 postPresenter.refresh()
                 Log.i(">>>>>>>>>>>>","UPDATED")
+                pullToRefresh.isRefreshing = false
             })
-        ContentService.getPosts(applicationContext)*/
+        ContentService.getPosts(applicationContext)
 
         pullToRefresh.setOnRefreshListener {
+            pullToRefresh.isRefreshing = true
             ContentService.getPosts(applicationContext)
+
         }
     }
 

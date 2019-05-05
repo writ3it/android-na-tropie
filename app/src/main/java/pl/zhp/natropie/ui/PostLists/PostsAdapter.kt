@@ -9,7 +9,7 @@ import pl.zhp.natropie.R
 import pl.zhp.natropie.db.entities.Post
 
 class PostsAdapter(context: Context,val objects: MutableList<Post>) :
-    ArrayAdapter<Post>(context, R.layout.post_excerpt_layout, objects), PostsListPresenter.UpdatetableAdapter {
+    ArrayAdapter<Post>(context, R.layout.post_excerpt_layout,R.id.row_post_title, objects), PostsListPresenter.UpdatetableAdapter {
 
     override fun showPostsList(_data: List<Post>) {
         objects.clear()
