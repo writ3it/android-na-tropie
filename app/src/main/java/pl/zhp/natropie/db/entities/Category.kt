@@ -9,15 +9,15 @@ import org.parceler.ParcelConstructor
 
 @Parcel(Parcel.Serialization.BEAN)
 @Entity(tableName="categories")
-data class Category @ParcelConstructor constructor(
+open class Category @ParcelConstructor constructor(
     @PrimaryKey(autoGenerate=false)
-    var id:Int,
+    var id:Long,
     @ColumnInfo(name="name")
     var name:String,
-    @ColumnInfo(name="parent")
-    var parent:Int,
     @ColumnInfo(name="menu")
-    var mainMenu:Boolean = false
+    var menu:Boolean = false,
+    @ColumnInfo(name="box_color")
+    var box_color:String
 ) : AEntity {
 
 }

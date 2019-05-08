@@ -1,10 +1,6 @@
-package pl.zhp.natropie.api.responses
+package pl.zhp.natropie.db.entities
 
-import org.parceler.ParcelConstructor
-import pl.zhp.natropie.db.entities.Post
-import java.util.*
-
-class PostResponse @ParcelConstructor constructor(
+class PostWithColor(
     id: Long,
     title: String,
     content: String,
@@ -14,6 +10,8 @@ class PostResponse @ParcelConstructor constructor(
     author: String,
     author_description: String,
     category: String,
-    category_id: Int
+    category_id: Int,
+    val color:String
 ) : Post(id, title, content, excerpt, date, slug, author, author_description, category, category_id) {
+
 }
