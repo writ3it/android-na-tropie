@@ -19,9 +19,11 @@ import pl.zhp.natropie.db.DBWorkerThread
 import pl.zhp.natropie.db.NaTropieDB
 import pl.zhp.natropie.db.entities.Category
 import pl.zhp.natropie.db.entities.Post
+import pl.zhp.natropie.db.entities.PostWithColor
 import pl.zhp.natropie.ui.ContentService
 import pl.zhp.natropie.ui.PostLists.PostsAdapter
 import pl.zhp.natropie.ui.PostLists.PostsListPresenter
+import pl.zhp.natropie.ui.models.PostVM
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener{
 
@@ -50,7 +52,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var postsAdapter: PostsAdapter
 
     private fun initPostList() {
-        postsAdapter = PostsAdapter(applicationContext, emptyList<Post>().toMutableList())
+        postsAdapter = PostsAdapter(applicationContext, emptyList<PostVM>().toMutableList())
         postsListView.adapter = postsAdapter
         postPresenter = PostsListPresenter(applicationContext, NaTropieDB.getInstance(applicationContext)?.postsRepository()!!)
         postPresenter.attachToAdapter(postsAdapter)
@@ -59,8 +61,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         ContentService.listenGetPosts(applicationContext,
             fun(context: Context?, intent: Intent?):Unit {
+                postPresenter.setCategoryId(selectedCategoryId)
                 postPresenter.refresh()
-                Log.i(">>>>>>>>>>>>","UPDATED")
                 pullToRefresh.isRefreshing = false
             })
         ContentService.getPosts(applicationContext)
@@ -95,7 +97,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 var i = 0
                 for(category in categories){
-                    menu?.add(0, Menu.FIRST+i, Menu.NONE, category.name)
+                    menu?.add(0, Menu.FIRST+category.id, Menu.NONE, category.name)
                     i++
                 }
             }
@@ -111,12 +113,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
 
+    private var selectedCategoryId: Int = 0
+
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        // Handle navigation view item clicks here.
-        when (item.itemId) {
-
-
-        }
+        selectedCategoryId = item.itemId - Menu.FIRST
+        ContentService.getPosts(applicationContext,selectedCategoryId)
 
         drawer_layout.closeDrawer(GravityCompat.START)
         return true

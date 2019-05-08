@@ -21,4 +21,7 @@ interface CategoriesRepository{
 
     @Query("DELETE FROM categories")
     fun deletAll()
+
+    @Query("SELECT * FROM categories where id = :id")
+    fun get(id: Int): Category
 }

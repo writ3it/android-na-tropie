@@ -10,6 +10,7 @@ import kotlinx.coroutines.*
 import pl.zhp.natropie.R
 import pl.zhp.natropie.db.entities.Post
 import pl.zhp.natropie.db.repositories.PostsRepository
+import pl.zhp.natropie.ui.models.PostVM
 import java.lang.Exception
 
 
@@ -24,10 +25,14 @@ class PostsListPresenter(val context: Context?, val table:PostsRepository){
     fun refresh(){
         scope.launch {
             val job = GlobalScope.async {
-                table.getForMainPage()
+                if (categoryId == 0) {
+                    table.getForMainPage()
+                } else {
+                    table.getFor(categoryId)
+                }
             }
             val data = job.await()
-            adapter?.showPostsList(data)
+            adapter?.showPostsList(data.map { PostVM(it) })
         }
     }
 
@@ -37,7 +42,13 @@ class PostsListPresenter(val context: Context?, val table:PostsRepository){
         adapter = _adapter
     }
 
+    private var categoryId: Int
+
+    fun setCategoryId(selectedCategoryId: Int) {
+        categoryId = selectedCategoryId
+    }
+
     interface UpdatetableAdapter{
-        fun showPostsList(data:List<Post>)
+        fun showPostsList(data:List<PostVM>)
     }
 }
