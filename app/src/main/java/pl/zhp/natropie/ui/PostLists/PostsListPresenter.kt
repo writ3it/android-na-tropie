@@ -42,7 +42,7 @@ class PostsListPresenter(val context: Context?, val table:PostsRepository){
         adapter = _adapter
     }
 
-    private var categoryId: Int
+    private var categoryId: Int = 0
 
     fun setCategoryId(selectedCategoryId: Int) {
         categoryId = selectedCategoryId

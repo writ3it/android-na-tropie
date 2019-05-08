@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 var i = 0
                 for(category in categories){
-                    menu?.add(0, Menu.FIRST+category.id, Menu.NONE, category.name)
+                    menu?.add(0, Menu.FIRST+category.id.toInt(), Menu.NONE, category.name)
                     i++
                 }
             }
@@ -118,7 +118,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         selectedCategoryId = item.itemId - Menu.FIRST
         ContentService.getPosts(applicationContext,selectedCategoryId)
-
+        postsListView.setSelectionAfterHeaderView();
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
     }

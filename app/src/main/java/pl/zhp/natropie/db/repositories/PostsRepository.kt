@@ -19,6 +19,6 @@ interface PostsRepository {
     @Insert(onConflict= OnConflictStrategy.REPLACE)
     fun insert(data:Post)
 
-    @Query("Select * from posts WHERE category_id = :categoryId ORDER BY date DESC LIMIT 100")
-    fun getFor(categoryId: Int): List<Post>
+    @Query("Select p.*,c.box_color as color from posts p join categories c on p.category_id = c.id WHERE category_id = :categoryId ORDER BY date DESC LIMIT 100")
+    fun getFor(categoryId: Int): List<PostWithColor>
 }
