@@ -10,7 +10,7 @@ import pl.zhp.natropie.db.repositories.PostsRepository
 import pl.zhp.natropie.db.types.CategoryIdsConverter
 import pl.zhp.natropie.db.types.DateConverter
 
-@Database(entities= [Category::class, Post::class], version=6)
+@Database(entities= [Category::class, Post::class], version=14)
 @TypeConverters(DateConverter::class,CategoryIdsConverter::class)
 abstract class NaTropieDB : RoomDatabase(){
 

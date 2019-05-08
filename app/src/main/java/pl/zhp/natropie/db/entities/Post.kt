@@ -7,30 +7,31 @@ import android.arch.persistence.room.TypeConverters
 import org.parceler.Parcel
 import org.parceler.ParcelConstructor
 import pl.zhp.natropie.db.types.CategoryIdsConverter
+import pl.zhp.natropie.db.types.DateConverter
 import java.util.*
 
 @Parcel(Parcel.Serialization.BEAN)
 @Entity(tableName="posts")
-data class Post @ParcelConstructor constructor(
+open class Post @ParcelConstructor constructor(
     @PrimaryKey(autoGenerate=false)
-    var id:Int,
-    @ColumnInfo(name="date")
-    var date: Date,
-    @ColumnInfo(name="url")
-    var link:String,
+    var id:Long,
     @ColumnInfo(name="title")
     var title:String,
-    @ColumnInfo(name="content_rendered", typeAffinity = ColumnInfo.TEXT)
+    @ColumnInfo(name="content_html", typeAffinity = ColumnInfo.TEXT)
     var content:String,
-    @ColumnInfo(name="excerpt_rendered", typeAffinity = ColumnInfo.TEXT)
+    @ColumnInfo(name="excerpt", typeAffinity = ColumnInfo.TEXT)
     var excerpt:String,
+    @ColumnInfo(name="date")
+    var date: Long,
+    @ColumnInfo(name="slug")
+    var slug:String,
     @ColumnInfo(name="author")
-    var author:Int,
-    @ColumnInfo(name="categories")
-    var categories:List<Int>,
-    @ColumnInfo(name="featured_media")
-    var featured_media:Int,
-    @ColumnInfo(name="status")
-    var status:String
+    var author:String,
+    @ColumnInfo(name="author_description")
+    var author_description:String,
+    @ColumnInfo(name="category")
+    var category:String,
+    @ColumnInfo(name="category_id")
+    var category_id:Int
 ):AEntity {
 }
