@@ -9,7 +9,7 @@ If you would like to run project in your Android Studio, follow steps:
 3. create app/src/main/res/values/nt_colors.xml (see template)
 
 ### settings.xml template
-Provide your own api url.
+Provide your own api url. Url has to ends with "/".
  
 ```{xml}
 <?xml version="1.0" encoding="utf-8"?>
