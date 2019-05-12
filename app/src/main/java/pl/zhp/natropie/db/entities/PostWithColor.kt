@@ -1,6 +1,10 @@
 package pl.zhp.natropie.db.entities
 
-class PostWithColor(
+import org.parceler.Parcel
+import org.parceler.ParcelConstructor
+
+@Parcel(Parcel.Serialization.BEAN)
+class PostWithColor @ParcelConstructor constructor(
     id: Long,
     title: String,
     content: String,

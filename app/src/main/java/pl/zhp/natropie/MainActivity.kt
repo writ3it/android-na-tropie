@@ -9,14 +9,17 @@ import android.support.v4.app.FragmentManager
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.AdapterView
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import kotlinx.android.synthetic.main.content_main.*
 import org.parceler.Parcels
 import pl.zhp.natropie.db.DBWorkerThread
 import pl.zhp.natropie.db.NaTropieDB
@@ -27,25 +30,41 @@ import pl.zhp.natropie.ui.PostLists.PostsListPresenter
 import pl.zhp.natropie.ui.models.PostVM
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
-    ListOfPostsFragment.OnFragmentInteractionListener {
-    override fun onFragmentInteraction(uri: Uri) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+        AdapterView.OnItemClickListener
+   {
+       /**
+        * Callback method to be invoked when an item in this AdapterView has
+        * been clicked.
+        *
+        *
+        * Implementers can call getItemAtPosition(position) if they need
+        * to access the data associated with the selected item.
+        *
+        * @param parent The AdapterView where the click happened.
+        * @param view The view within the AdapterView that was clicked (this
+        * will be a view provided by the adapter)
+        * @param position The position of the view in the adapter.
+        * @param id The row id of the item that was clicked.
+        */
+       override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            val post = postsAdapter.getItem(position) ?: return
+            val intent = Intent(this,ReaderActivity::class.java).apply{
+                putExtra(ReaderActivity.VAR_POST, Parcels.wrap(post.Model))
+            }
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+       }
 
-    private var db: NaTropieDB? = null
+       private var db: NaTropieDB? = null
 
     private lateinit var thread: DBWorkerThread
 
     private lateinit var postPresenter: PostsListPresenter
 
-    private lateinit var mFragmentManager: FragmentManager
-
-    private lateinit var mMainFragment: PostFragment
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        initFragments(savedInstanceState)
+
         setSupportActionBar(toolbar)
 
         val toggle = ActionBarDrawerToggle(
@@ -58,25 +77,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         initPostList()
     }
 
-    private lateinit var listOfPostsLayout: FrameLayout
-
-    private fun initFragments(savedInstanceState: Bundle?) {
-        val manager = supportFragmentManager
-        manager.addOnBackStackChangedListener{ setLayout() }
-        listOfPostsLayout = findViewById<FrameLayout>(R.id.fragment_list_of_posts)
-        if (savedInstanceState == null){
-            val transaction = manager.beginTransaction()
-            val list = ListOfPostsFragment()
-            transaction.add(R.id.fragment_list_of_posts, list)
-            transaction.commit()
-        }
-    }
-
     private lateinit var postsAdapter: PostsAdapter
 
+
     private fun initPostList() {
-        /*postsAdapter = PostsAdapter(applicationContext, emptyList<PostVM>().toMutableList())
+        postsAdapter = PostsAdapter(applicationContext, emptyList<PostVM>().toMutableList())
         postsListView.adapter = postsAdapter
+        postsListView.onItemClickListener = this
         postPresenter = PostsListPresenter(applicationContext, NaTropieDB.getInstance(applicationContext)?.postsRepository()!!)
         postPresenter.attachToAdapter(postsAdapter)
 
@@ -94,14 +101,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             pullToRefresh.isRefreshing = true
             ContentService.getPosts(applicationContext)
 
-        }*/
+        }
     }
 
     override fun onDestroy() {
-        /*NaTropieDB.destroyInstance()
+        NaTropieDB.destroyInstance()
         postPresenter.detachView()
         thread.quit()
-        super.onDestroy()*/
+        super.onDestroy()
     }
 
     override fun onBackPressed() {
@@ -140,18 +147,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         selectedCategoryId = item.itemId - Menu.FIRST
-        //ContentService.getPosts(applicationContext,selectedCategoryId)
-        //postsListView.setSelectionAfterHeaderView();
+        ContentService.getPosts(applicationContext,selectedCategoryId)
+        postsListView.setSelectionAfterHeaderView();
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
     }
 
-    private fun setLayout() {
-        listOfPostsLayout.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT,MATCH_PARENT)
-    }
-    companion object {
-        private const val MATCH_PARENT = LinearLayout.LayoutParams.MATCH_PARENT
-        private const val CURRENT_INDEX = "CURRENT_INDEX"
-        private const val TAG = "MainActivityTag"
-    }
+
 }
