@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources  xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
+     <style name="MyDrawerArrowToggle" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="color">@color/toggle_color</item>
+    </style>
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="colorControlNormal">@color/toggle_color</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/app_bar_background</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="drawerArrowStyle">@style/MyDrawerArrowToggle</item>
+        <item name="android:windowAnimationStyle">@style/ActivityTransisitons</item>
+        <item name="actionBarStyle">@style/DefaultActionBar</item>
+        <item name="android:actionBarStyle"   tools:ignore="NewApi">@style/DefaultActionBar</item>
+    </style>
+    <style name="DefaultActionBar" parent="@style/Widget.AppCompat.ActionBar.Solid">
+        <item name="android:background"  tools:ignore="NewApi">@color/colorPrimary</item>
+        <item name="background">@color/colorPrimary</item>
+    </style>
+    <style name="ActivityTransisitons" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/slide_in_right</item>
+        <item name="android:activityOpenExitAnimation">@anim/slide_out_left</item>
+        <item name="android:activityCloseEnterAnimation">@anim/slide_in_left</item>
+        <item name="android:activityCloseExitAnimation">@anim/slide_out_right</item>
+    </style>
+</resources>
