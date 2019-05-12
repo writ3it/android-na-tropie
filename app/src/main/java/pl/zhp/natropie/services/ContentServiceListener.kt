@@ -1,4 +1,4 @@
-package pl.zhp.natropie.ui
+package pl.zhp.natropie.services
 
 import android.content.BroadcastReceiver
 import android.content.Context

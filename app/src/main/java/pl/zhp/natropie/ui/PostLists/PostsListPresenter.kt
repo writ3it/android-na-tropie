@@ -10,6 +10,7 @@ import kotlinx.coroutines.*
 import pl.zhp.natropie.R
 import pl.zhp.natropie.db.entities.Post
 import pl.zhp.natropie.db.repositories.PostsRepository
+import pl.zhp.natropie.tracking.Track
 import pl.zhp.natropie.ui.models.PostVM
 import java.lang.Exception
 
@@ -26,9 +27,12 @@ class PostsListPresenter(val context: Context?, val table:PostsRepository){
         scope.launch {
             val job = GlobalScope.async {
                 if (categoryId == 0) {
+                    Track.DisplayList(Track.MAINPAGE)
                     table.getForMainPage()
                 } else {
-                    table.getFor(categoryId)
+                    val result =table.getFor(categoryId)
+                    Track.DisplayList(result.first().category)
+                    result
                 }
             }
             val data = job.await()

@@ -2,14 +2,11 @@ package pl.zhp.natropie
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.NavigationView
-import android.support.v4.app.FragmentManager
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 
@@ -17,14 +14,12 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
-import android.widget.FrameLayout
-import android.widget.LinearLayout
 import kotlinx.android.synthetic.main.content_main.*
 import org.parceler.Parcels
-import pl.zhp.natropie.db.DBWorkerThread
 import pl.zhp.natropie.db.NaTropieDB
 import pl.zhp.natropie.db.entities.Category
-import pl.zhp.natropie.ui.ContentService
+import pl.zhp.natropie.tracking.Track
+import pl.zhp.natropie.services.ContentService
 import pl.zhp.natropie.ui.PostLists.PostsAdapter
 import pl.zhp.natropie.ui.PostLists.PostsListPresenter
 import pl.zhp.natropie.ui.models.PostVM
@@ -59,6 +54,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var postPresenter: PostsListPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Track.initializeWithContext(applicationContext)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)

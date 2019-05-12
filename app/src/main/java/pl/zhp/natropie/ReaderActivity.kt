@@ -10,8 +10,8 @@ import kotlinx.android.synthetic.main.app_bar_reader.*
 import kotlinx.android.synthetic.main.content_reader.*
 import org.parceler.Parcels
 import pl.zhp.natropie.db.entities.PostWithColor
-import pl.zhp.natropie.db.types.DateConverter
-import pl.zhp.natropie.ui.NaTropiePage
+import pl.zhp.natropie.helpers.NaTropiePage
+import pl.zhp.natropie.tracking.Track
 
 class ReaderActivity : AppCompatActivity() {
 
@@ -29,6 +29,7 @@ class ReaderActivity : AppCompatActivity() {
             .setAuthor(post.author)
             .setDate(post.date)
             .setCategory(post.category)
+        Track.DisplayPost(post.id, post.title,post.author,post.category)
         web_content.loadDataWithBaseURL("",doc.getHtml(),"text/html","UTF-8","")
     }
 

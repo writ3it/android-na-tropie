@@ -1,4 +1,4 @@
-package pl.zhp.natropie.ui
+package pl.zhp.natropie.services
 
 import android.app.IntentService
 import android.content.Intent
@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.support.v4.content.LocalBroadcastManager
-import android.util.Log
 import com.google.gson.GsonBuilder
 import pl.zhp.natropie.R
 import pl.zhp.natropie.api.CategoriesService
@@ -17,6 +16,7 @@ import pl.zhp.natropie.db.entities.AEntity
 import pl.zhp.natropie.db.entities.Category
 import pl.zhp.natropie.db.entities.Post
 import pl.zhp.natropie.db.types.NothingResponse
+import pl.zhp.natropie.tracking.Track
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
@@ -73,6 +73,7 @@ class ContentService : IntentService("ContentService") {
     private fun handleGetPosts(categoryId: Int) {
         val postsList: List<Post>? = if (categoryId == 0) {
             val lastTimestamp = config!!.getLong(CONFIG_LAST_TIMESTAMP, 0)
+            Track.DownloadPosts(lastTimestamp)
             postsService!!.getFromMainPage(lastTimestamp)?.execute().body()
         } else {
             emptyList()
@@ -123,17 +124,25 @@ class ContentService : IntentService("ContentService") {
 
 
     companion object {
-        const val RESPONSE_GET_MENU = "pl.zhp.natropie.ui.ContentService.RESPONSE_GET_MENU"
-        const val RESPONSE_VAR_MENU = "pl.zhp.natropie.ui.ContentService.RESPONSE_GET_MENU.VAR_MENU"
-        const val RESPONSE_GET_POSTS = "pl.zhp.natropie.ui.ContentService.RESPONSE_GET_POSTS"
-        const val RESPONSE_VAR_POSTS = "pl.zhp.natropie.ui.ContentService.RESPONSE_GET_POSTS"
+        const val RESPONSE_GET_MENU = "pl.zhp.natropie.services.ContentService.RESPONSE_GET_MENU"
+        const val RESPONSE_VAR_MENU = "pl.zhp.natropie.services.ContentService.RESPONSE_GET_MENU.VAR_MENU"
+        const val RESPONSE_GET_POSTS = "pl.zhp.natropie.services.ContentService.RESPONSE_GET_POSTS"
+        const val RESPONSE_VAR_POSTS = "pl.zhp.natropie.services.ContentService.RESPONSE_GET_POSTS"
 
         fun listenGetMenu(context: Context, callback: (context: Context?, Intent?) -> Unit) {
-            listen(RESPONSE_GET_MENU, callback, context)
+            listen(
+                RESPONSE_GET_MENU,
+                callback,
+                context
+            )
         }
 
         fun listenGetPosts(context: Context, callback: (context: Context?, Intent?) -> Unit) {
-            listen(RESPONSE_GET_POSTS, callback, context)
+            listen(
+                RESPONSE_GET_POSTS,
+                callback,
+                context
+            )
         }
 
         private fun listen(name: String, callback: (context: Context?, Intent?) -> Unit, context: Context) {
