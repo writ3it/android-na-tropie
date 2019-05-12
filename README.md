@@ -5,8 +5,10 @@ Branded app for polish scout magazine
 
 If you would like to run project in your Android Studio, follow steps:
 1. create app/src/main/res/drawable/nt_logo.png
-2. create app/src/main/res/values/settings.xml (see template)
-3. create app/src/main/res/values/nt_colors.xml (see template)
+2. create app/src/main/res/drawable/nt_small_logo.png
+3. insert own app/google-services.json from firebase
+4. create app/src/main/res/values/settings.xml (see template)
+5. create app/src/main/res/values/nt_colors.xml (see template)
 
 ### settings.xml template
 Provide your own api url. Url has to ends with "/".
@@ -25,16 +27,20 @@ Adjust colors by your discretion.
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="row_post_title">#FFFFFF</color>
-    <color name="row_post_background">#FF0000</color>
+    <color name="row_post_background">#FFFFFF</color>
     <color name="app_bar_background">#FFFFFF</color>
     <color name="background">#FFFFFF</color>
-    <color name="toggle_color">#000000</color>
-
-    <style name="MyDrawerArrowToggle" parent="Widget.AppCompat.DrawerArrowToggle">
-        <item name="color">@color/toggle_color</item>
-    </style>
+    <color name="toggle_color">#FFFFFF</color>
+    <color name="colorPrimary">@color/app_bar_background</color>
+    <color name="colorPrimaryDark">#FFFFFF</color>
+    <color name="colorAccent">#FFFFFF</color>
 </resources>
 ```
+
+## Important dependencies
+- firebase
+- google-services
+- kotlinx-coroutines
 
 ## Contributing
 Please read [CONTRIBUTING.md](https://github.com/writ3it/android-na-tropie/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
