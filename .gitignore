@@ -60,6 +60,7 @@ settings.xml
 app/src/main/res/values/nt_colors.xml
 nt_colors.xml
 app/src/main/res/drawable/nt_logo.png
+app/src/main/res/drawable/nt_small_logo.png
 
 
 # fastlane
