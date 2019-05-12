@@ -11,4 +11,5 @@ class PostVM(post:PostWithColor) : ViewModel() {
     var excerpt = post.excerpt
     var author_and_date = post.author+" / "+ DateConverter.fromTimestamp(post.date)
     var id = post.id
+    var Model:PostWithColor = post
 }

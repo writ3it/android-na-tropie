@@ -2,34 +2,59 @@ package pl.zhp.natropie
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.NavigationView
+import android.support.v4.app.FragmentManager
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.AdapterView
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import kotlinx.android.synthetic.main.content_main.*
 import org.parceler.Parcels
 import pl.zhp.natropie.db.DBWorkerThread
 import pl.zhp.natropie.db.NaTropieDB
 import pl.zhp.natropie.db.entities.Category
-import pl.zhp.natropie.db.entities.Post
-import pl.zhp.natropie.db.entities.PostWithColor
 import pl.zhp.natropie.ui.ContentService
 import pl.zhp.natropie.ui.PostLists.PostsAdapter
 import pl.zhp.natropie.ui.PostLists.PostsListPresenter
 import pl.zhp.natropie.ui.models.PostVM
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener{
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
+        AdapterView.OnItemClickListener
+   {
+       /**
+        * Callback method to be invoked when an item in this AdapterView has
+        * been clicked.
+        *
+        *
+        * Implementers can call getItemAtPosition(position) if they need
+        * to access the data associated with the selected item.
+        *
+        * @param parent The AdapterView where the click happened.
+        * @param view The view within the AdapterView that was clicked (this
+        * will be a view provided by the adapter)
+        * @param position The position of the view in the adapter.
+        * @param id The row id of the item that was clicked.
+        */
+   override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        val post = postsAdapter.getItem(position) ?: return
+        val intent = Intent(this,ReaderActivity::class.java).apply{
+            putExtra(ReaderActivity.VAR_POST, Parcels.wrap(post.Model))
+        }
+        startActivity(intent)
+   }
 
     private var db: NaTropieDB? = null
-
-    private lateinit var thread: DBWorkerThread
 
     private lateinit var postPresenter: PostsListPresenter
 
@@ -42,18 +67,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
         drawer_layout.addDrawerListener(toggle)
-
         toggle.syncState()
         setMenu(nav_view.menu)
         nav_view.setNavigationItemSelectedListener(this)
-        initPostList()
+        initPostList(savedInstanceState)
     }
 
     private lateinit var postsAdapter: PostsAdapter
 
-    private fun initPostList() {
+
+    private fun initPostList(savedInstanceState:Bundle?) {
         postsAdapter = PostsAdapter(applicationContext, emptyList<PostVM>().toMutableList())
         postsListView.adapter = postsAdapter
+        postsListView.onItemClickListener = this
         postPresenter = PostsListPresenter(applicationContext, NaTropieDB.getInstance(applicationContext)?.postsRepository()!!)
         postPresenter.attachToAdapter(postsAdapter)
 
@@ -65,7 +91,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 postPresenter.refresh()
                 pullToRefresh.isRefreshing = false
             })
-        ContentService.getPosts(applicationContext)
+        if (savedInstanceState == null) {
+            ContentService.getPosts(applicationContext)
+        } else {
+            selectedCategoryId = savedInstanceState.getInt(VAR_CATEGORY_ID)
+            ContentService.getPosts(applicationContext,selectedCategoryId)
+        }
 
         pullToRefresh.setOnRefreshListener {
             pullToRefresh.isRefreshing = true
@@ -77,7 +108,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onDestroy() {
         NaTropieDB.destroyInstance()
         postPresenter.detachView()
-        thread.quit()
         super.onDestroy()
     }
 
@@ -112,6 +142,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
+       override fun onSaveInstanceState(outState: Bundle?) {
+           outState?.putInt(VAR_CATEGORY_ID,selectedCategoryId)
+           super.onSaveInstanceState(outState)
+       }
 
     private var selectedCategoryId: Int = 0
 
@@ -121,5 +155,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         postsListView.setSelectionAfterHeaderView();
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    companion object {
+        const val VAR_CATEGORY_ID = "pl.zhp.natropie.MainActivity.VAR_CATEGORY_ID";
     }
 }
