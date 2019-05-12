@@ -8,11 +8,5 @@
                                               tools:showIn="@layout/app_bar_reader"
                                               tools:context=".ReaderActivity"
 >
-<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Hello world!"/>
-    <Button
-            android:text="Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" tools:layout_editor_absoluteY="87dp"
-            tools:layout_editor_absoluteX="134dp" android:id="@+id/button" android:onClick="test"/>
-
+<WebView android:layout_width="match_parent" android:layout_height="match_parent" android:id="@+id/web_content"/>
 </android.support.constraint.ConstraintLayout>
