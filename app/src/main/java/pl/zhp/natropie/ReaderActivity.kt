@@ -2,6 +2,7 @@ package pl.zhp.natropie
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import kotlinx.android.synthetic.main.app_bar_reader.*
@@ -12,11 +13,15 @@ class ReaderActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reader)
         setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.activity_reader_drawer,menu)
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (item?.itemId == android.R.id.home){
+        if (item?.itemId == R.id.action_back){
             finish()
             return true
         }
