@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:layout_height="match_parent">
+
+    <FrameLayout android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:id="@+id/fragment_list_of_posts"
+              android:layout_weight="1"/>
+
+    <!-- <fragment android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              class="pl.zhp.natropie.PostFragmentFragment"
+              android:id="@+id/fragment_post"
+              android:layout_weight="2"/> -->
+
+</LinearLayout>
