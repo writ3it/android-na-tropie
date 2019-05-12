@@ -4,12 +4,13 @@
           package="pl.zhp.natropie">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
             android:allowBackup="true"
-            android:icon="@mipmap/ic_launcher"
+            android:icon="@drawable/nt_small_logo"
             android:label="@string/app_name"
-            android:roundIcon="@mipmap/ic_launcher_round"
+            android:roundIcon="@drawable/nt_small_logo"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity android:name=".ReaderActivity"
@@ -21,7 +22,7 @@
         </activity>
 
         <service
-                android:name=".ui.ContentService"
+                android:name=".services.ContentService"
                 android:exported="false">
         </service>
 

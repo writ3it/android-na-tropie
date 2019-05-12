@@ -1,4 +1,4 @@
-package pl.zhp.natropie.ui
+package pl.zhp.natropie.helpers
 
 import pl.zhp.natropie.db.types.DateConverter
 
@@ -6,28 +6,28 @@ class NaTropiePage(var content: String) {
 
     private lateinit var title: String
 
-    fun setTitle(title: String):NaTropiePage {
+    fun setTitle(title: String): NaTropiePage {
         this.title = title
         return this
     }
 
     private lateinit var author: String
 
-    fun setAuthor(author: String):NaTropiePage {
+    fun setAuthor(author: String): NaTropiePage {
         this.author = author
         return this
     }
 
     private lateinit var date: String
 
-    fun setDate(date: Long):NaTropiePage {
+    fun setDate(date: Long): NaTropiePage {
         this.date = DateConverter.fromTimestamp(date)
         return this
     }
 
     private lateinit var category: String
 
-    fun setCategory(category: String):NaTropiePage {
+    fun setCategory(category: String): NaTropiePage {
         this.category = category
         return this
     }

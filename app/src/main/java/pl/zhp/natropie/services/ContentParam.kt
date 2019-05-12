@@ -1,4 +1,4 @@
-package pl.zhp.natropie.ui
+package pl.zhp.natropie.services
 
 import android.os.Parcelable
 import org.parceler.Parcels
