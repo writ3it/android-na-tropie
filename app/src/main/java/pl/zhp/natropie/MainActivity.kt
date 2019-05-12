@@ -46,25 +46,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         * @param position The position of the view in the adapter.
         * @param id The row id of the item that was clicked.
         */
-       override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-            val post = postsAdapter.getItem(position) ?: return
-            val intent = Intent(this,ReaderActivity::class.java).apply{
-                putExtra(ReaderActivity.VAR_POST, Parcels.wrap(post.Model))
-            }
-            startActivity(intent)
-            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
-       }
+   override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        val post = postsAdapter.getItem(position) ?: return
+        val intent = Intent(this,ReaderActivity::class.java).apply{
+            putExtra(ReaderActivity.VAR_POST, Parcels.wrap(post.Model))
+        }
+        startActivity(intent)
+   }
 
-       private var db: NaTropieDB? = null
-
-    private lateinit var thread: DBWorkerThread
+    private var db: NaTropieDB? = null
 
     private lateinit var postPresenter: PostsListPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         setSupportActionBar(toolbar)
 
         val toggle = ActionBarDrawerToggle(
@@ -74,13 +70,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.syncState()
         setMenu(nav_view.menu)
         nav_view.setNavigationItemSelectedListener(this)
-        initPostList()
+        initPostList(savedInstanceState)
     }
 
     private lateinit var postsAdapter: PostsAdapter
 
 
-    private fun initPostList() {
+    private fun initPostList(savedInstanceState:Bundle?) {
         postsAdapter = PostsAdapter(applicationContext, emptyList<PostVM>().toMutableList())
         postsListView.adapter = postsAdapter
         postsListView.onItemClickListener = this
@@ -95,7 +91,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 postPresenter.refresh()
                 pullToRefresh.isRefreshing = false
             })
-        ContentService.getPosts(applicationContext)
+        if (savedInstanceState == null) {
+            ContentService.getPosts(applicationContext)
+        } else {
+            selectedCategoryId = savedInstanceState.getInt(VAR_CATEGORY_ID)
+            ContentService.getPosts(applicationContext,selectedCategoryId)
+        }
 
         pullToRefresh.setOnRefreshListener {
             pullToRefresh.isRefreshing = true
@@ -107,7 +108,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onDestroy() {
         NaTropieDB.destroyInstance()
         postPresenter.detachView()
-        thread.quit()
         super.onDestroy()
     }
 
@@ -142,6 +142,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
+       override fun onSaveInstanceState(outState: Bundle?) {
+           outState?.putInt(VAR_CATEGORY_ID,selectedCategoryId)
+           super.onSaveInstanceState(outState)
+       }
 
     private var selectedCategoryId: Int = 0
 
@@ -153,5 +157,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-
+    companion object {
+        const val VAR_CATEGORY_ID = "pl.zhp.natropie.MainActivity.VAR_CATEGORY_ID";
+    }
 }
