@@ -7,6 +7,7 @@ import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 
@@ -14,12 +15,14 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.android.synthetic.main.content_main.*
 import org.parceler.Parcels
 import pl.zhp.natropie.db.NaTropieDB
 import pl.zhp.natropie.db.entities.Category
 import pl.zhp.natropie.tracking.Track
 import pl.zhp.natropie.services.ContentService
+import pl.zhp.natropie.services.PushNotificationService
 import pl.zhp.natropie.ui.PostLists.PostsAdapter
 import pl.zhp.natropie.ui.PostLists.PostsListPresenter
 import pl.zhp.natropie.ui.models.PostVM
@@ -56,6 +59,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         Track.initializeWithContext(applicationContext)
         super.onCreate(savedInstanceState)
+        FirebaseMessaging.getInstance().subscribeToTopic(getString(R.string.notification_topic))
+            .addOnCompleteListener { task ->
+                Log.d(PushNotificationService.TAG, task.isSuccessful.toString())
+            }
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 

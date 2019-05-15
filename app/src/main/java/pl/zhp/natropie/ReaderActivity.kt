@@ -9,6 +9,7 @@ import android.view.View
 import kotlinx.android.synthetic.main.app_bar_reader.*
 import kotlinx.android.synthetic.main.content_reader.*
 import org.parceler.Parcels
+import pl.zhp.natropie.db.NaTropieDB
 import pl.zhp.natropie.db.entities.PostWithColor
 import pl.zhp.natropie.helpers.NaTropiePage
 import pl.zhp.natropie.tracking.Track
@@ -23,7 +24,9 @@ class ReaderActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        val post =intent.getParcelableExtra<Parcelable>(VAR_POST).let { Parcels.unwrap<PostWithColor>(it) }
+
+        var post:PostWithColor = intent.getParcelableExtra<Parcelable>(VAR_POST).let { Parcels.unwrap<PostWithColor>(it) }
+
         val doc = NaTropiePage(post.content)
         doc.setTitle(post.title)
             .setAuthor(post.author)
