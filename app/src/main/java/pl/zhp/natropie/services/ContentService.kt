@@ -20,6 +20,9 @@ import pl.zhp.natropie.tracking.Track
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
+import android.net.NetworkInfo
+import android.net.ConnectivityManager
+import android.widget.Toast
 
 
 private const val ACTION_GET_MENU = "pl.zhp.natropie.ui.action.GET_MENU"
@@ -71,6 +74,10 @@ class ContentService : IntentService("ContentService") {
     }
 
     private fun handleGetPosts(categoryId: Int) {
+        if (!isNetworkAvailable()){
+            sendResponse<NothingResponse>(RESPONSE_GET_POSTS)
+            return
+        }
         val postsList: List<Post>? = if (categoryId == 0) {
             val lastTimestamp = config!!.getLong(CONFIG_LAST_TIMESTAMP, 0)
             Track.DownloadPosts(lastTimestamp)
@@ -92,19 +99,20 @@ class ContentService : IntentService("ContentService") {
      * Get menu from db or internet
      */
     private fun handleGetMenu() {
-        // @TODO: przerobić na 1 request
-        val categoriesList = categoriesService!!.listCategories().execute().body()
         var table = db?.categoriesRepository()
-        for (cc in categoriesList!!.iterator()) {
-            try {
+        if (isNetworkAvailable()){
+            val categoriesList = categoriesService!!.listCategories().execute().body()
+            for (cc in categoriesList!!.iterator()) {
+                try {
 
-                table!!.insert(cc)
+                    table!!.insert(cc)
 
-            } catch (e: Exception) {
+                } catch (e: Exception) {
 
+                }
             }
         }
-        val categories = table!!.getAllForMenu()?.toTypedArray()
+        val categories = table!!.getAllForMenu().toTypedArray()
         sendResponse(RESPONSE_GET_MENU, listOf(ContentParam<Category>().apply {
             Name = RESPONSE_VAR_MENU
             Data = categories
@@ -120,6 +128,12 @@ class ContentService : IntentService("ContentService") {
             }
         }
         LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetworkInfo = connectivityManager.activeNetworkInfo
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected
     }
 
 
