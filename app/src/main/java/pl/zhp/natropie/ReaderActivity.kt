@@ -33,7 +33,7 @@ class ReaderActivity : AppCompatActivity() {
             .setDate(post.date)
             .setCategory(post.category)
         Track.DisplayPost(post.id, post.title,post.author,post.category)
-        web_content.loadDataWithBaseURL("",doc.getHtml(),"text/html","UTF-8","")
+        web_content.loadDataWithBaseURL("file:///android_asset/",doc.getHtml(),"text/html","UTF-8","")
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

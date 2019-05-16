@@ -54,7 +54,7 @@ google-services.json
 freeline.py
 freeline/
 freeline_project_description.json
-
+app/src/main/assets/*
 app/google-services.json
 app/src/main/res/font/*.otf
 app/src/main/res/values/settings.xml
