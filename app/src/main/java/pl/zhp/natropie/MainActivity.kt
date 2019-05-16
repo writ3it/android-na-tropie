@@ -123,6 +123,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun setMenu(menu: Menu?) {
+        menu?.add(0,Menu.FIRST,Menu.NONE,getString(R.string.main_menu_item_name))
         ContentService.listenGetMenu( applicationContext,
             fun(context: Context?, intent: Intent?):Unit {
                 val categories = intent!!.getParcelableArrayExtra(ContentService.RESPONSE_VAR_MENU).map{
