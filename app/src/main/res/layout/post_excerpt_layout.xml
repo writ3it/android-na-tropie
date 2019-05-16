@@ -17,9 +17,13 @@
                 tools:layout_editor_absoluteY="0dp"
                 tools:layout_editor_absoluteX="0dp"
                 android:id="@+id/row_post_category_name"
-                android:paddingLeft="15dp"
-                android:paddingRight="15dp" android:paddingTop="4dp" android:paddingBottom="4dp"
-                android:textAllCaps="true" tools:text="placeholder"/>
+                android:textSize="15.2sp"
+                android:paddingLeft="17dp"
+                android:paddingRight="17dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:textAllCaps="true"
+                tools:text="NA TROPIE ŚRODOWISK"/>
         <ImageView
                 android:id="@+id/border1"
                 android:background="@color/row_post_background"
@@ -31,20 +35,22 @@
     </LinearLayout>
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" app:layout_constraintTop_toBottomOf="@+id/lay1">
 
-        <android.support.v7.widget.AppCompatTextView android:layout_width="match_parent" android:layout_height="wrap_content"
-                  android:id="@+id/row_post_title"
-                  android:textColor="@color/row_post_title"
-                  android:text="Tytuł"
-                  android:singleLine="false"
-                  android:background="@color/row_post_background"
-                  android:fontFamily="@font/museo"
-                  android:layerType="software"
-                    android:textSize="29sp"
-                  android:paddingTop="7dp"
-                  android:paddingBottom="7dp"
-                  android:paddingRight="7dp"
-                  android:paddingLeft="7dp"
-                  tools:layout_editor_absoluteX="10dp" android:textStyle="bold" />
+        <android.support.v7.widget.AppCompatTextView android:layout_width="match_parent"
+                                                     android:layout_height="wrap_content"
+                                                     android:id="@+id/row_post_title"
+                                                     android:textColor="@color/row_post_title"
+                                                     android:text="Rozmowa z Niezwyczajnym komendantem"
+                                                     android:singleLine="false"
+                                                     android:background="@color/row_post_background"
+                                                     android:fontFamily="@font/museo"
+                                                     android:layerType="software"
+                                                     android:lineSpacingMultiplier="0.75"
+                                                     android:textSize="30sp"
+                                                     android:paddingLeft="17dp"
+                                                     android:paddingRight="17dp"
+                                                     android:paddingTop="9dp"
+                                                     android:paddingBottom="9dp"
+                                                     tools:layout_editor_absoluteX="10dp" android:textStyle="bold"/>
         <ImageView
                 android:id="@+id/border2"
                 android:background="@color/row_post_background"
@@ -55,18 +61,18 @@
                 app:layout_constraintTop_toBottomOf="@+id/row_post_title" />
 
         <TextView
-                android:text="TextView"
+                android:text="MARIA KORCZ / 04.05.2019"
                 android:background="@color/row_post_background"
                 android:textColor="@color/row_post_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="7dp"
-                android:paddingBottom="7dp"
-                android:paddingRight="7dp"
-                android:paddingLeft="7dp"
+                android:paddingLeft="17dp"
+                android:paddingRight="17dp"
+                android:paddingTop="9dp"
+                android:paddingBottom="9dp"
                 android:id="@+id/row_post_date_and_author"
                 app:layout_constraintTop_toBottomOf="@+id/border2"
-                android:textAllCaps="true" />
+                android:textAllCaps="true" android:textSize="15.2sp"/>
         <ImageView
                 android:id="@+id/border3"
                 android:background="@color/row_post_background"
@@ -76,28 +82,35 @@
                 android:layerType="software"
                 app:layout_constraintTop_toBottomOf="@+id/row_post_background" />
         <TextView
-                android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed dictum ex lectus, vel convallis libero egestas quis. Quisque libero elit, tempor sed fermentum at, vehicula eget lacus. Proin sed viverra tortor, ut feugiat quam. Etiam vel quam in ante luctus scelerisque. Donec consequat vehicula ante, in semper lacus posuere sed."
+                android:text="Kolejna rozmowa Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed dictum ex lectus, vel convallis libero egestas quis. Quisque libero elit, tempor sed fermentum at, vehicula eget lacus. Proin sed viverra tortor, ut feugiat quam. Etiam vel quam in ante luctus scelerisque. Donec consequat vehicula ante, in semper lacus posuere sed."
                 android:background="@color/row_post_background"
                 android:textColor="@color/row_post_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/row_post_excerpt"
+                android:lineSpacingMultiplier="1.5"
                 app:layout_constraintTop_toBottomOf="@+id/border3"
-                android:paddingTop="7dp"
-                android:paddingBottom="7dp"
-                android:paddingRight="7dp"
-                android:paddingLeft="7dp"/>
-        <TextView
+                android:paddingLeft="17dp"
+                android:paddingRight="17dp"
+                android:paddingTop="11dp"
+                android:paddingBottom="9dp"
+                android:textSize="15sp"
+        />
+        <android.support.v7.widget.AppCompatTextView
                 android:background="@color/row_post_background"
                 android:textColor="@color/row_post_title"
                 android:text="Czytaj więcej"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/row_post_read_more"
+                android:fontFamily="@font/museo"
                 app:layout_constraintTop_toBottomOf="@+id/row_post_excerpt"
-                android:textSize="23dp" android:textAlignment="textEnd" android:paddingTop="7dp"
-                android:paddingLeft="7dp"
-                android:paddingRight="7dp" android:paddingBottom="10dp" android:textStyle="bold"/>
+                android:textSize="23dp" android:textAlignment="textEnd"
+                android:paddingLeft="17dp"
+                android:paddingRight="17dp"
+                android:paddingTop="12dp"
+               android:paddingBottom="30dp"
+                android:textStyle="bold"/>
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

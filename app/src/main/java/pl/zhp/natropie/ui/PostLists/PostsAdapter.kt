@@ -40,6 +40,9 @@ class PostsAdapter(context: Context,val objects: MutableList<PostVM>) :
         view.row_post_excerpt.setBackgroundColor(color)
         view.row_post_date_and_author.setBackgroundColor(color)
         view.row_post_read_more.setBackgroundColor(color)
+        view.border1.setBackgroundColor(color)
+        view.border2.setBackgroundColor(color)
+        view.border3.setBackgroundColor(color)
         return view
     }
 
