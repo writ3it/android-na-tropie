@@ -54,10 +54,13 @@ google-services.json
 freeline.py
 freeline/
 freeline_project_description.json
-
+app/src/main/assets/*
 app/google-services.json
+app/src/main/res/font/*.otf
 app/src/main/res/values/settings.xml
 settings.xml
+app/src/main/res/drawable/nt_border.xml
+nt_border.xml
 app/src/main/res/values/nt_colors.xml
 nt_colors.xml
 app/src/main/res/xml/tracker.xml

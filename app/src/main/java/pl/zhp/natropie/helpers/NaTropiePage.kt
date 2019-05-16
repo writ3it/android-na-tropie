@@ -1,5 +1,6 @@
 package pl.zhp.natropie.helpers
 
+import android.util.Log
 import pl.zhp.natropie.db.types.DateConverter
 
 class NaTropiePage(var content: String) {
@@ -33,9 +34,12 @@ class NaTropiePage(var content: String) {
     }
 
     fun getHtml():String{
-        return "<h2 class=\"title\">$title</h2>"+
+        val data= "<html><head><link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\"/></head>" +
+                "<body><div id=\"content\"><h2 class=\"title\">$title</h2>"+
                 "<p class=\"meta\"><span class=\"dzial\">$category</span>/<span class=\"autor\">$author</span>/<span class=\"time\">$date</span></p>"+
-                content;
+                content+"</div></body></html>"
+        Log.i(">>>>>>>>>>>>",data)
+        return data
     }
 
 }
