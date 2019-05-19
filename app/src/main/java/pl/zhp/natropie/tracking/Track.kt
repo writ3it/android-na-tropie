@@ -8,7 +8,7 @@ import pl.zhp.natropie.services.ContentParam
 object Track{
 
 
-        private var FA: FirebaseAnalytics? = null
+        private lateinit var FA: FirebaseAnalytics
 
         fun initializeWithContext(applicationContext: Context){
             FA = FirebaseAnalytics.getInstance(applicationContext)
@@ -16,21 +16,21 @@ object Track{
         }
         private fun appOpen(){
             val bundle = Bundle()
-            FA!!.logEvent(Event.APP_OPEN,bundle)
+            FA.logEvent(Event.APP_OPEN,bundle)
         }
 
         fun DownloadPosts(timestamp:Long){
             val bundle = Bundle().apply {
                 putLong(Param.TIMESTAMP,timestamp)
             }
-            FA!!.logEvent(Event.DOWNLOAD_POSTS,bundle)
+            FA.logEvent(Event.DOWNLOAD_POSTS,bundle)
         }
 
         fun DisplayList(categoryName:String){
             val bundle = Bundle().apply {
                 putString(Param.CATEGORY,categoryName)
             }
-            FA!!.logEvent(Event.DISPLAY_POSTS,bundle)
+            FA.logEvent(Event.DISPLAY_POSTS,bundle)
         }
 
         fun DisplayPost(postId:Long, postTitle:String, postAuthor:String, postCategory:String){
@@ -40,7 +40,7 @@ object Track{
                 putString(Param.POST_AUTHOR, postAuthor)
                 putString(Param.POST_CATEGORY, postCategory)
             }
-            FA!!.logEvent(Event.DISPLAY_POST,bundle)
+            FA.logEvent(Event.DISPLAY_POST,bundle)
         }
 
 

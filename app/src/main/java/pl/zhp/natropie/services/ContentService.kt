@@ -40,17 +40,13 @@ private const val CONFIG_LAST_TIMESTAMP = "lastTimestamp"
 
 class ContentService : IntentService("ContentService") {
 
-    private var db: NaTropieDB? = null
-
-    private var categoriesService: CategoriesService? = null
-
-
-    private var postsService: PostsService? = null
-
-    private var config: SharedPreferences? = null
+    private lateinit var db: NaTropieDB
+    private lateinit var categoriesService: CategoriesService
+    private lateinit var postsService: PostsService
+    private lateinit var config: SharedPreferences
 
     override fun onCreate() {
-        db = NaTropieDB.getInstance(this)
+        db = NaTropieDB.getInstance(this)!!
         val gson = GsonBuilder().registerTypeAdapter(Date::class.java, DateSerializer()).create()
         val rf = Retrofit.Builder().baseUrl(resources.getString(R.string.NT_API_URL)).addConverterFactory(
             GsonConverterFactory.create(gson)
@@ -79,19 +75,19 @@ class ContentService : IntentService("ContentService") {
             return
         }
         val postsList: List<Post>? = if (categoryId == 0) {
-            val lastTimestamp = config!!.getLong(CONFIG_LAST_TIMESTAMP, 0)
+            val lastTimestamp = config.getLong(CONFIG_LAST_TIMESTAMP, 0)
             Track.DownloadPosts(lastTimestamp)
-            postsService!!.getFromMainPage(lastTimestamp)?.execute().body()
+            postsService.getFromMainPage(lastTimestamp).execute().body()
         } else {
             emptyList()
         }
 
-        val table = db?.postsRepository()
+        val table = db.postsRepository()
         for (post in postsList!!.iterator()) {
-            table!!.insert(post)
+            table.insert(post)
         }
         val tsLong = System.currentTimeMillis() / 1000
-        config!!.edit().putLong(CONFIG_LAST_TIMESTAMP, tsLong)
+        config.edit().putLong(CONFIG_LAST_TIMESTAMP, tsLong)
         sendResponse<NothingResponse>(RESPONSE_GET_POSTS)
     }
 
@@ -99,20 +95,20 @@ class ContentService : IntentService("ContentService") {
      * Get menu from db or internet
      */
     private fun handleGetMenu() {
-        var table = db?.categoriesRepository()
+        var table = db.categoriesRepository()
         if (isNetworkAvailable()){
-            val categoriesList = categoriesService!!.listCategories().execute().body()
+            val categoriesList = categoriesService.listCategories().execute().body()
             for (cc in categoriesList!!.iterator()) {
                 try {
 
-                    table!!.insert(cc)
+                    table.insert(cc)
 
                 } catch (e: Exception) {
 
                 }
             }
         }
-        val categories = table!!.getAllForMenu().toTypedArray()
+        val categories = table.getAllForMenu().toTypedArray()
         sendResponse(RESPONSE_GET_MENU, listOf(ContentParam<Category>().apply {
             Name = RESPONSE_VAR_MENU
             Data = categories

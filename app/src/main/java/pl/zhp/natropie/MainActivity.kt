@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         startActivity(intent)
    }
 
-    private var db: NaTropieDB? = null
+    private lateinit var db: NaTropieDB
 
     private lateinit var postPresenter: PostsListPresenter
 
