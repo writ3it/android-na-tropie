@@ -20,6 +20,7 @@ import java.util.*
 import kotlin.random.Random
 
 class PushNotificationService :FirebaseMessagingService() {
+
     override fun onCreate() {
         super.onCreate()
         ContentService.listenGetPosts(application,fun(context: Context?, intent:Intent?):Unit{
@@ -33,7 +34,9 @@ class PushNotificationService :FirebaseMessagingService() {
             }
         })
     }
+
     private val stackToDisplay = Stack<RemoteMessage>()
+
     override fun onMessageReceived(message: RemoteMessage?) {
         displayNotification(message!!)
         super.onMessageReceived(message)
