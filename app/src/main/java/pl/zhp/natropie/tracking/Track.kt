@@ -37,8 +37,8 @@ object Track{
             val bundle=Bundle().apply{
                 putLong(Param.POST_ID,postId)
                 putString(Param.POST_TITLE, postTitle)
-                putString(Param.POST_AUTHOR, postTitle)
-                putString(Param.POST_CATEGORY, postTitle)
+                putString(Param.POST_AUTHOR, postAuthor)
+                putString(Param.POST_CATEGORY, postCategory)
             }
             FA!!.logEvent(Event.DISPLAY_POST,bundle)
         }
