@@ -3,6 +3,8 @@ package pl.zhp.natropie.services
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.media.RingtoneManager
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
@@ -58,9 +60,12 @@ class PushNotificationService :FirebaseMessagingService() {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         val pIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT)
 
-        val sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        val sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        val icon = BitmapFactory.decodeResource(applicationContext.resources, R.drawable.nt_small_logo)
         val builder = NotificationCompat.Builder(this)
             .setSmallIcon(R.drawable.nt_small_logo)
+            .setLargeIcon(icon)
+            .setColor(Color.rgb(0,0,0))
             .setContentTitle("Na Tropie pisze!")
             .setContentText(message.notification!!.body)
             .setSound(sound)
