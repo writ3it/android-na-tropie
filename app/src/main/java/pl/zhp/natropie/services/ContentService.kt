@@ -22,6 +22,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
 import android.net.NetworkInfo
 import android.net.ConnectivityManager
+import android.util.Log
 import android.widget.Toast
 
 
@@ -29,6 +30,7 @@ private const val ACTION_GET_MENU = "pl.zhp.natropie.ui.action.GET_MENU"
 private const val ACTION_GET_POSTS = "pl.zhp.natropie.ui.action.GET_POSTS"
 private const val ACTION_GET_POSTS_CATEGORY_ID = "pl.zhp.natropie.ui.action.ACTION_GET_POSTS_CATEGORY_ID"
 private const val CONFIG_LAST_TIMESTAMP = "lastTimestamp"
+private const val ACTION_GET_POSTS_WITH_DELAY = "pl.zhp.natropie.ui.action.GET_POSTS_WITH_DELAY"
 
 
 /**
@@ -66,18 +68,32 @@ class ContentService : IntentService("ContentService") {
                 val categoryId = intent.getIntExtra(ACTION_GET_POSTS_CATEGORY_ID, 0)
                 handleGetPosts(categoryId)
             }
+            ACTION_GET_POSTS_WITH_DELAY->{
+                val categoryId = intent.getIntExtra(ACTION_GET_POSTS_CATEGORY_ID, 0)
+                handleGetPostsWithDelay(categoryId)
+            }
         }
     }
 
-    private fun handleGetPosts(categoryId: Int) {
+    private fun handleGetPostsWithDelay(categoryId: Int) {
+        handleGetPosts(categoryId,DELAY)
+    }
+
+    private fun handleGetPosts(categoryId: Int, timeOffset:Long = 0) {
         if (!isNetworkAvailable()){
             sendResponse<NothingResponse>(RESPONSE_GET_POSTS)
             return
         }
         val postsList: List<Post>? = if (categoryId == 0) {
             val lastTimestamp = config.getLong(CONFIG_LAST_TIMESTAMP, 0)
-            Track.DownloadPosts(lastTimestamp)
-            postsService.getFromMainPage(lastTimestamp).execute().body()
+            val currentTimestamp = System.currentTimeMillis() / 1000
+            if (lastTimestamp < currentTimestamp - timeOffset){
+                Track.DownloadPosts(lastTimestamp)
+                config.edit().putLong(CONFIG_LAST_TIMESTAMP, currentTimestamp).apply()
+                postsService.getFromMainPage(lastTimestamp).execute().body()
+            } else {
+                emptyList()
+            }
         } else {
             emptyList()
         }
@@ -86,8 +102,7 @@ class ContentService : IntentService("ContentService") {
         for (post in postsList!!.iterator()) {
             table.insert(post)
         }
-        val tsLong = System.currentTimeMillis() / 1000
-        config.edit().putLong(CONFIG_LAST_TIMESTAMP, tsLong)
+
         sendResponse<NothingResponse>(RESPONSE_GET_POSTS)
     }
 
@@ -138,6 +153,7 @@ class ContentService : IntentService("ContentService") {
         const val RESPONSE_VAR_MENU = "pl.zhp.natropie.services.ContentService.RESPONSE_GET_MENU.VAR_MENU"
         const val RESPONSE_GET_POSTS = "pl.zhp.natropie.services.ContentService.RESPONSE_GET_POSTS"
         const val RESPONSE_VAR_POSTS = "pl.zhp.natropie.services.ContentService.RESPONSE_GET_POSTS"
+        const val DELAY:Long = 120*60
 
         fun listenGetMenu(context: Context, callback: (context: Context?, Intent?) -> Unit) {
             listen(
@@ -175,6 +191,14 @@ class ContentService : IntentService("ContentService") {
         fun getPosts(context: Context, categoryId: Int = 0) {
             val intent = Intent(context, ContentService::class.java).apply {
                 action = ACTION_GET_POSTS
+                putExtra(ACTION_GET_POSTS_CATEGORY_ID, categoryId)
+            }
+            context.startService(intent)
+        }
+
+        fun getPostsWithDelay(context: Context, categoryId: Int = 0) {
+            val intent = Intent(context, ContentService::class.java).apply {
+                action = ACTION_GET_POSTS_WITH_DELAY
                 putExtra(ACTION_GET_POSTS_CATEGORY_ID, categoryId)
             }
             context.startService(intent)

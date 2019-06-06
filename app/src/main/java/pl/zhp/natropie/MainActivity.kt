@@ -95,10 +95,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 pullToRefresh.isRefreshing = false
             })
         if (savedInstanceState == null) {
-            ContentService.getPosts(applicationContext)
+            ContentService.getPostsWithDelay(applicationContext)
         } else {
             selectedCategoryId = savedInstanceState.getInt(VAR_CATEGORY_ID)
-            ContentService.getPosts(applicationContext,selectedCategoryId)
+            ContentService.getPostsWithDelay(applicationContext,selectedCategoryId)
         }
 
         pullToRefresh.setOnRefreshListener {
