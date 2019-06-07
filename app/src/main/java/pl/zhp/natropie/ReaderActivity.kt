@@ -33,6 +33,8 @@ class ReaderActivity : AppCompatActivity() {
             .setDate(post.date)
             .setCategory(post.category)
         Track.DisplayPost(post.id, post.title,post.author,post.category)
+        web_content.settings.allowUniversalAccessFromFileURLs = true
+        web_content.settings.javaScriptEnabled = true
         web_content.loadDataWithBaseURL("file:///android_asset/",doc.getHtml(),"text/html","UTF-8","")
     }
 

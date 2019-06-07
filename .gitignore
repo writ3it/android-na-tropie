@@ -66,6 +66,8 @@ nt_colors.xml
 app/src/main/res/xml/tracker.xml
 app/src/main/res/drawable/nt_logo.png
 app/src/main/res/drawable/nt_small_logo.png
+app/src/main/res/drawable-v24/nt_logo.png
+app/src/main/res/drawable-v24/nt_small_logo.png
 
 
 # fastlane
