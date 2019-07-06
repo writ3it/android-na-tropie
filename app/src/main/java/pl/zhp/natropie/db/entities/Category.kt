@@ -17,7 +17,9 @@ open class Category @ParcelConstructor constructor(
     @ColumnInfo(name="menu")
     var menu:Boolean = false,
     @ColumnInfo(name="box_color")
-    var box_color:String
+    var box_color:String,
+    @ColumnInfo(name="order")
+    var order:Int
 ) : AEntity {
 
 }

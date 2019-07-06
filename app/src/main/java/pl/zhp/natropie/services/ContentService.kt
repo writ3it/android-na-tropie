@@ -108,13 +108,19 @@ class ContentService : IntentService("ContentService") {
     }
 
     private fun handleGetPosts(categoryId: Int, timeOffset:Long = 0) {
+        Log.i(">>>>>>>>>>>","handleGetPosts")
         if (!isNetworkAvailable()){
             sendResponse<NothingResponse>(RESPONSE_GET_POSTS)
             return
         }
+        val table = db.postsRepository()
         val postsList: List<Post>? = if (categoryId == 0) {
-            val lastTimestamp = config.getLong(CONFIG_LAST_TIMESTAMP, 0)
+            var lastTimestamp = config.getLong(CONFIG_LAST_TIMESTAMP, 0)
             val currentTimestamp = System.currentTimeMillis() / 1000
+            val postCount = table.havePosts()
+            if (postCount==0){
+                lastTimestamp = 0
+            }
             if (lastTimestamp < currentTimestamp - timeOffset){
                 Track.DownloadPosts(lastTimestamp)
                 config.edit().putLong(CONFIG_LAST_TIMESTAMP, currentTimestamp).apply()
@@ -126,7 +132,7 @@ class ContentService : IntentService("ContentService") {
             emptyList()
         }
 
-        val table = db.postsRepository()
+
         for (post in postsList!!.iterator()) {
             table.insert(post)
         }
