@@ -15,6 +15,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
+import android.widget.Toast
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.android.synthetic.main.content_main.*
 import org.parceler.Parcels
@@ -28,29 +29,28 @@ import pl.zhp.natropie.ui.PostLists.PostsListPresenter
 import pl.zhp.natropie.ui.models.PostVM
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
-        AdapterView.OnItemClickListener
-   {
-       /**
-        * Callback method to be invoked when an item in this AdapterView has
-        * been clicked.
-        *
-        *
-        * Implementers can call getItemAtPosition(position) if they need
-        * to access the data associated with the selected item.
-        *
-        * @param parent The AdapterView where the click happened.
-        * @param view The view within the AdapterView that was clicked (this
-        * will be a view provided by the adapter)
-        * @param position The position of the view in the adapter.
-        * @param id The row id of the item that was clicked.
-        */
-   override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+    AdapterView.OnItemClickListener {
+    /**
+     * Callback method to be invoked when an item in this AdapterView has
+     * been clicked.
+     *
+     *
+     * Implementers can call getItemAtPosition(position) if they need
+     * to access the data associated with the selected item.
+     *
+     * @param parent The AdapterView where the click happened.
+     * @param view The view within the AdapterView that was clicked (this
+     * will be a view provided by the adapter)
+     * @param position The position of the view in the adapter.
+     * @param id The row id of the item that was clicked.
+     */
+    override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         val post = postsAdapter.getItem(position) ?: return
-        val intent = Intent(this,ReaderActivity::class.java).apply{
+        val intent = Intent(this, ReaderActivity::class.java).apply {
             putExtra(ReaderActivity.VAR_POST, Parcels.wrap(post.Model))
         }
         startActivity(intent)
-   }
+    }
 
     private lateinit var db: NaTropieDB
 
@@ -79,17 +79,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var postsAdapter: PostsAdapter
 
 
-    private fun initPostList(savedInstanceState:Bundle?) {
+    private fun initPostList(savedInstanceState: Bundle?) {
         postsAdapter = PostsAdapter(applicationContext, emptyList<PostVM>().toMutableList())
         postsListView.adapter = postsAdapter
         postsListView.onItemClickListener = this
-        postPresenter = PostsListPresenter(applicationContext, NaTropieDB.getInstance(applicationContext)?.postsRepository()!!)
+        postPresenter =
+            PostsListPresenter(applicationContext, NaTropieDB.getInstance(applicationContext)?.postsRepository()!!)
         postPresenter.attachToAdapter(postsAdapter)
 
         val respondend = false;
 
         ContentService.listenGetPosts(applicationContext,
-            fun(context: Context?, intent: Intent?):Unit {
+            fun(context: Context?, intent: Intent?): Unit {
                 postPresenter.setCategoryId(selectedCategoryId)
                 postPresenter.refresh()
                 pullToRefresh.isRefreshing = false
@@ -98,7 +99,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             ContentService.getPostsWithDelay(applicationContext)
         } else {
             selectedCategoryId = savedInstanceState.getInt(VAR_CATEGORY_ID)
-            ContentService.getPostsWithDelay(applicationContext,selectedCategoryId)
+            ContentService.getPostsWithDelay(applicationContext, selectedCategoryId)
         }
 
         pullToRefresh.setOnRefreshListener {
@@ -123,15 +124,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun setMenu(menu: Menu?) {
-        menu?.add(0,Menu.FIRST,Menu.NONE,getString(R.string.main_menu_item_name))
-        ContentService.listenGetMenu( applicationContext,
-            fun(context: Context?, intent: Intent?):Unit {
-                val categories = intent!!.getParcelableArrayExtra(ContentService.RESPONSE_VAR_MENU).map{
+        menu?.add(0, Menu.FIRST, Menu.NONE, getString(R.string.main_menu_item_name))
+        ContentService.listenGetMenu(applicationContext,
+            fun(context: Context?, intent: Intent?): Unit {
+                val categories = intent!!.getParcelableArrayExtra(ContentService.RESPONSE_VAR_MENU).map {
                     Parcels.unwrap<Category>(it)
                 }
                 var i = 0
-                for(category in categories){
-                    menu?.add(0, Menu.FIRST+category.id.toInt(), Menu.NONE, category.name)
+                for (category in categories) {
+                    menu?.add(0, Menu.FIRST + category.id.toInt(), Menu.NONE, category.name)
                     i++
                 }
             }
@@ -146,22 +147,38 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-       override fun onSaveInstanceState(outState: Bundle?) {
-           outState?.putInt(VAR_CATEGORY_ID,selectedCategoryId)
-           super.onSaveInstanceState(outState)
-       }
+    override fun onSaveInstanceState(outState: Bundle?) {
+        outState?.putInt(VAR_CATEGORY_ID, selectedCategoryId)
+        super.onSaveInstanceState(outState)
+    }
 
     private var selectedCategoryId: Int = 0
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        selectedCategoryId = item.itemId - Menu.FIRST
-        ContentService.getPosts(applicationContext,selectedCategoryId)
-        postsListView.setSelectionAfterHeaderView();
+        if (item.itemId > LIMIT_ITEM_ID) {
+            customMenuItemsDispatch(item);
+        } else {
+            selectedCategoryId = item.itemId - Menu.FIRST
+            ContentService.getPosts(applicationContext, selectedCategoryId)
+            postsListView.setSelectionAfterHeaderView();
+        }
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
     }
 
+    private fun customMenuItemsDispatch(item: MenuItem) {
+        when(item.itemId){
+            R.id.about_us_menu_item -> aboutUsMenuItemOnClick();
+        }
+    }
+
+    private fun aboutUsMenuItemOnClick() {
+        Toast.makeText(applicationContext,"O nas!",Toast.LENGTH_LONG).show()
+    }
+
+
     companion object {
         const val VAR_CATEGORY_ID = "pl.zhp.natropie.MainActivity.VAR_CATEGORY_ID";
+        const val LIMIT_ITEM_ID = 1000;
     }
 }
