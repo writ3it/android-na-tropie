@@ -24,14 +24,19 @@ import android.net.NetworkInfo
 import android.net.ConnectivityManager
 import android.util.Log
 import android.widget.Toast
+import pl.zhp.natropie.db.entities.PostWithColor
 
 
 private const val ACTION_GET_MENU = "pl.zhp.natropie.ui.action.GET_MENU"
 private const val ACTION_GET_POSTS = "pl.zhp.natropie.ui.action.GET_POSTS"
 private const val ACTION_GET_POSTS_CATEGORY_ID = "pl.zhp.natropie.ui.action.ACTION_GET_POSTS_CATEGORY_ID"
 private const val CONFIG_LAST_TIMESTAMP = "lastTimestamp"
+private const val CONFIG_LAST_ABOUTUS_TS = "lastAboutUs"
 private const val ACTION_GET_POSTS_WITH_DELAY = "pl.zhp.natropie.ui.action.GET_POSTS_WITH_DELAY"
+private const val ACTION_ENSURE_ABOUT_US = "pl.zhp.natropie.ui.action.ACTION_ENSURE_ABOUT_US"
 
+private const val ABOUT_US_DB_ID:Long = -1
+private const val ABOUT_US_UPDATE_INTERVAL:Long = 7*24*60*60
 
 /**
  * An [IntentService] subclass for handling asynchronous task requests in
@@ -72,7 +77,30 @@ class ContentService : IntentService("ContentService") {
                 val categoryId = intent.getIntExtra(ACTION_GET_POSTS_CATEGORY_ID, 0)
                 handleGetPostsWithDelay(categoryId)
             }
+            ACTION_ENSURE_ABOUT_US->{
+                handleEnsureAboutUs()
+            }
         }
+    }
+
+    private fun handleEnsureAboutUs() {
+        val table = db.postsRepository()
+        val lastTimestamp = config.getLong(CONFIG_LAST_ABOUTUS_TS, 0)
+        val currentTimestamp = System.currentTimeMillis() / 1000
+        if (table.exists(ABOUT_US_DB_ID)<=0 || currentTimestamp - lastTimestamp >= ABOUT_US_UPDATE_INTERVAL){
+            if (!isNetworkAvailable()){
+                return // no internet
+            }
+            val post:Post = postsService.getAboutUs().execute().body()!!
+            post.id = ABOUT_US_DB_ID
+            table.insert(post)
+        }
+
+        val post = table.get(ABOUT_US_DB_ID)
+        sendResponse(RESPONSE_ENSURE_ABOUT_US, listOf(ContentParam<PostWithColor>().apply {
+            Name = RESPONSE_VAR_ABOUT_US
+            Data = arrayOf(post)
+        }))
     }
 
     private fun handleGetPostsWithDelay(categoryId: Int) {
@@ -153,6 +181,8 @@ class ContentService : IntentService("ContentService") {
         const val RESPONSE_VAR_MENU = "pl.zhp.natropie.services.ContentService.RESPONSE_GET_MENU.VAR_MENU"
         const val RESPONSE_GET_POSTS = "pl.zhp.natropie.services.ContentService.RESPONSE_GET_POSTS"
         const val RESPONSE_VAR_POSTS = "pl.zhp.natropie.services.ContentService.RESPONSE_GET_POSTS"
+        const val RESPONSE_ENSURE_ABOUT_US = "pl.zhp.natropie.services.ContentService.RESPONSE_ENSURE_ABOUT_US"
+        const val RESPONSE_VAR_ABOUT_US = RESPONSE_ENSURE_ABOUT_US
         const val DELAY:Long = 120*60
 
         fun listenGetMenu(context: Context, callback: (context: Context?, Intent?) -> Unit) {
@@ -202,6 +232,21 @@ class ContentService : IntentService("ContentService") {
                 putExtra(ACTION_GET_POSTS_CATEGORY_ID, categoryId)
             }
             context.startService(intent)
+        }
+
+        fun ensureAboutUs(context:Context) {
+            val intent = Intent(context, ContentService::class.java).apply {
+                action = ACTION_ENSURE_ABOUT_US
+            }
+            context.startService(intent)
+        }
+
+        fun listenEnsureAboutUs(context: Context, callback: (Context?, Intent?) -> Unit) {
+            listen(
+                RESPONSE_ENSURE_ABOUT_US,
+                callback,
+                context
+            )
         }
 
     }

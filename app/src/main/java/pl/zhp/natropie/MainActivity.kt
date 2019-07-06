@@ -21,6 +21,7 @@ import kotlinx.android.synthetic.main.content_main.*
 import org.parceler.Parcels
 import pl.zhp.natropie.db.NaTropieDB
 import pl.zhp.natropie.db.entities.Category
+import pl.zhp.natropie.db.entities.PostWithColor
 import pl.zhp.natropie.tracking.Track
 import pl.zhp.natropie.services.ContentService
 import pl.zhp.natropie.services.PushNotificationService
@@ -46,6 +47,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      */
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         val post = postsAdapter.getItem(position) ?: return
+        openReader(post)
+    }
+
+    private fun openReader(post: PostVM) {
         val intent = Intent(this, ReaderActivity::class.java).apply {
             putExtra(ReaderActivity.VAR_POST, Parcels.wrap(post.Model))
         }
@@ -87,7 +92,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             PostsListPresenter(applicationContext, NaTropieDB.getInstance(applicationContext)?.postsRepository()!!)
         postPresenter.attachToAdapter(postsAdapter)
 
-        val respondend = false;
+        val respondend = false
 
         ContentService.listenGetPosts(applicationContext,
             fun(context: Context?, intent: Intent?): Unit {
@@ -105,8 +110,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         pullToRefresh.setOnRefreshListener {
             pullToRefresh.isRefreshing = true
             ContentService.getPosts(applicationContext)
-
         }
+
+        ContentService.listenEnsureAboutUs(applicationContext,
+            fun(context:Context?, intent:Intent?):Unit{
+                val post = intent!!.getParcelableArrayExtra(ContentService.RESPONSE_ENSURE_ABOUT_US).map{
+                    Parcels.unwrap<PostWithColor>(it)
+                }
+                val postVM = PostVM(post.first()!!)
+                openReader(postVM)
+            })
     }
 
     override fun onDestroy() {
@@ -156,24 +169,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         if (item.itemId > LIMIT_ITEM_ID) {
-            customMenuItemsDispatch(item);
+            customMenuItemsDispatch(item)
         } else {
             selectedCategoryId = item.itemId - Menu.FIRST
             ContentService.getPosts(applicationContext, selectedCategoryId)
-            postsListView.setSelectionAfterHeaderView();
+            postsListView.setSelectionAfterHeaderView()
         }
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
     }
 
     private fun customMenuItemsDispatch(item: MenuItem) {
-        when(item.itemId){
-            R.id.about_us_menu_item -> aboutUsMenuItemOnClick();
+        when (item.itemId) {
+            R.id.about_us_menu_item -> aboutUsMenuItemOnClick()
         }
     }
 
     private fun aboutUsMenuItemOnClick() {
-        Toast.makeText(applicationContext,"O nas!",Toast.LENGTH_LONG).show()
+        ContentService.ensureAboutUs(applicationContext)
     }
 
 

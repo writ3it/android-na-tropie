@@ -22,6 +22,9 @@ interface PostsRepository {
     @Query("Select p.*,c.box_color as color from posts p join categories c on p.category_id = c.id WHERE category_id = :categoryId ORDER BY date DESC LIMIT 100")
     fun getFor(categoryId: Int): List<PostWithColor>
 
-    @Query("Select p.*,c.box_color as color from posts p join categories c on p.category_id = c.id  WHERE p.id=:postId")
-    fun get(postId: Int): PostWithColor
+    @Query("Select p.*,IFNULL(c.box_color,'#FFFFFF') as color from posts p left join categories c on p.category_id = c.id  WHERE p.id=:postId")
+    fun get(postId: Long): PostWithColor
+
+    @Query("SELECT count(*) FROM posts p WHERE p.id=:postId")
+    fun exists(postId:Long):Int
 }
