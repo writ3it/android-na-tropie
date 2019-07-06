@@ -29,9 +29,11 @@ class ReaderActivity : AppCompatActivity() {
 
         val doc = NaTropiePage(post.content)
         doc.setTitle(post.title)
-            .setAuthor(post.author)
-            .setDate(post.date)
-            .setCategory(post.category)
+        if(post.category!="PAGES") {
+            doc.setAuthor(post.author)
+                .setCategory(post.category)
+                .setDate(post.date)
+        }
         Track.DisplayPost(post.id, post.title,post.author,post.category)
         web_content.settings.allowUniversalAccessFromFileURLs = true
         web_content.settings.javaScriptEnabled = true

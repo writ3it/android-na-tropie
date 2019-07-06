@@ -3,5 +3,7 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:showIn="navigation_view" android:id="@+id/main_menu">
 
+    <item android:id="@+id/about_us_menu_item"
+          android:title="@string/about_us"/>
 
 </menu>

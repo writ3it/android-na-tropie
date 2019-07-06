@@ -29,7 +29,7 @@ class PushNotificationService :FirebaseMessagingService() {
             GlobalScope.launch {
                 while(!stackToDisplay.empty()){
                     val message = stackToDisplay.pop()
-                    val postId = message.data["item_id"]!!.toInt()
+                    val postId = message.data["item_id"]!!.toLong()
                     val post = NaTropieDB.getInstance(applicationContext)?.postsRepository()?.get(postId) ?: continue
                     notify(message,post)
                 }

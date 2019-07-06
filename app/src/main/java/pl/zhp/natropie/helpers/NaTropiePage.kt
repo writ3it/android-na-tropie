@@ -12,21 +12,21 @@ class NaTropiePage(var content: String) {
         return this
     }
 
-    private lateinit var author: String
+    private var author: String? = null
 
     fun setAuthor(author: String): NaTropiePage {
         this.author = author
         return this
     }
 
-    private lateinit var date: String
+    private var date: String? = null
 
     fun setDate(date: Long): NaTropiePage {
         this.date = DateConverter.fromTimestamp(date)
         return this
     }
 
-    private lateinit var category: String
+    private var category: String? = null
 
     fun setCategory(category: String): NaTropiePage {
         this.category = category
@@ -36,7 +36,21 @@ class NaTropiePage(var content: String) {
     fun getHtml():String{
         val data= "<html><head><link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\"/></head>" +
                 "<body><div id=\"content\"><h2 class=\"title\">$title</h2>"+
-                "<p class=\"meta\"><span class=\"dzial\">$category</span>/<span class=\"autor\">$author</span>/<span class=\"time\">$date</span></p>"+
+                "<p class=\"meta\">" +
+        if(category!=null) {
+            "<span class=\"dzial\">$category</span>/"
+        } else { "" } +
+        if (author!=null){
+            "<span class=\"autor\">$author</span>/"
+        } else {
+            ""
+        } +
+                if (date!=null){
+                    "<span class=\"time\">$date</span>"
+                } else {
+                    ""
+                } +
+        "</p>"+
                 content+"</div></body></html>"
         Log.i(">>>>>>>>>>>>",data)
         return data
