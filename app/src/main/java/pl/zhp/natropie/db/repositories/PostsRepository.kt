@@ -27,4 +27,7 @@ interface PostsRepository {
 
     @Query("SELECT count(*) FROM posts p WHERE p.id=:postId")
     fun exists(postId:Long):Int
+
+    @Query("SELECT count(*) FROM posts p ")
+    fun havePosts(): Int
 }
