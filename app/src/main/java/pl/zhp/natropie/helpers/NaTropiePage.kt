@@ -52,7 +52,6 @@ class NaTropiePage(var content: String) {
                 } +
         "</p>"+
                 content+"</div></body></html>"
-        Log.i(">>>>>>>>>>>>",data)
         return data
     }
 

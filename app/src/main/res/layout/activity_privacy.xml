@@ -20,9 +20,9 @@
             app:layout_constraintTop_toBottomOf="@+id/web_content" android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent" android:gravity="center">
         <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Nie zgadzam się"/>
+                android:text="Nie zgadzam się" android:onClick="disagreeClick"/>
         <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Zgadzam się"
-                android:backgroundTint="#08DB1B"/>
+                android:backgroundTint="#08DB1B" android:onClick="agreeClick"/>
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

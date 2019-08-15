@@ -22,6 +22,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
 import android.net.ConnectivityManager
 import android.util.Log
+import android.widget.Toast
 import pl.zhp.natropie.db.entities.PostWithColor
 
 
@@ -87,18 +88,23 @@ class ContentService : IntentService("ContentService") {
     }
 
     private fun handleDownloadPrivacy() {
-        if (!isNetworkAvailable()){
-            return // no internet
-        }
+
         val table = db.postsRepository()
-        val post:Post = postsService.getPrivacy().execute().body()!!
-        post.id = PRIVACY_DB_ID
-        table.insert(post)
-        val postWithColor = table.get(PRIVACY_DB_ID)
-        sendResponse(RESPONSE_ENSURE_PRIVACY_POLICY, listOf(ContentParam<PostWithColor>().apply {
-            Name = RESPONSE_VAR_PRIVACY_POLICY
-            Data = arrayOf(postWithColor)
-        }))
+
+        if (isNetworkAvailable()) {
+            val post: Post = postsService.getPrivacy().execute().body()!!
+            post.id = PRIVACY_DB_ID
+            table.insert(post)
+        }
+        if (table.exists(PRIVACY_DB_ID)>0) {
+            val postWithColor = table.get(PRIVACY_DB_ID)
+            sendResponse(RESPONSE_ENSURE_PRIVACY_POLICY, listOf(ContentParam<PostWithColor>().apply {
+                Name = RESPONSE_VAR_PRIVACY_POLICY
+                Data = arrayOf(postWithColor)
+            }))
+            return
+        }
+        Toast.makeText(applicationContext,"Brak połączenia internetowego!",Toast.LENGTH_LONG).show()
     }
 
     private fun handleEnsureAboutUs() {
