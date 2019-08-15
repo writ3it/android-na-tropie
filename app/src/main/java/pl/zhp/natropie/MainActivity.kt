@@ -89,12 +89,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         queringAgreement= true
         if (privacyCheck(true)) {
             queringAgreement = false
-            Track.initializeWithContext(applicationContext)
             initializeMain(savedInstanceState)
         }
     }
 
     private fun initializeMain(savedInstanceState: Bundle?) {
+        Track.initializeWithContext(applicationContext)
         FirebaseMessaging.getInstance().subscribeToTopic(getString(R.string.notification_topic))
             .addOnCompleteListener { task ->
                 Log.d(PushNotificationService.TAG, task.isSuccessful.toString())
