@@ -11,4 +11,6 @@ interface PostsService {
 
     @GET("posts/get-about-us")
     fun getAboutUs():Call<PostResponse>
+    @GET("posts/privacy")
+    fun getPrivacy():Call<PostResponse>
 }

@@ -6,24 +6,24 @@ import android.os.Parcelable
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.webkit.WebView
 import kotlinx.android.synthetic.main.app_bar_reader.*
 import kotlinx.android.synthetic.main.content_reader.*
 import org.parceler.Parcels
-import pl.zhp.natropie.db.NaTropieDB
 import pl.zhp.natropie.db.entities.PostWithColor
 import pl.zhp.natropie.helpers.NaTropiePage
 import pl.zhp.natropie.tracking.Track
 
-class ReaderActivity : AppCompatActivity() {
+open class ReaderActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reader)
         setSupportActionBar(toolbar)
-        initView();
+        initView(web_content)
     }
 
-    private fun initView() {
+    private fun initView(webContent:WebView) {
 
         var post:PostWithColor = intent.getParcelableExtra<Parcelable>(VAR_POST).let { Parcels.unwrap<PostWithColor>(it) }
 
@@ -35,9 +35,9 @@ class ReaderActivity : AppCompatActivity() {
                 .setDate(post.date)
         }
         Track.DisplayPost(post.id, post.title,post.author,post.category)
-        web_content.settings.allowUniversalAccessFromFileURLs = true
-        web_content.settings.javaScriptEnabled = true
-        web_content.loadDataWithBaseURL("file:///android_asset/",doc.getHtml(),"text/html","UTF-8","")
+        webContent.settings.allowUniversalAccessFromFileURLs = true
+        webContent.settings.javaScriptEnabled = true
+        webContent.loadDataWithBaseURL("file:///android_asset/",doc.getHtml(),"text/html","UTF-8","")
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

@@ -24,6 +24,7 @@ import org.parceler.Parcels
 import pl.zhp.natropie.db.NaTropieDB
 import pl.zhp.natropie.db.entities.Category
 import pl.zhp.natropie.db.entities.PostWithColor
+import pl.zhp.natropie.dialogs.PrivacyActivity
 import pl.zhp.natropie.tracking.Track
 import pl.zhp.natropie.services.ContentService
 import pl.zhp.natropie.services.PushNotificationService
@@ -49,11 +50,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
      */
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         val post = postsAdapter.getItem(position) ?: return
-        openReader(post)
+        openReader<ReaderActivity>(post)
     }
 
-    private fun openReader(post: PostVM) {
-        val intent = Intent(this, ReaderActivity::class.java).apply {
+    private inline fun <reified T : Any>openReader(post: PostVM) {
+        val intent = Intent(this, T::class.java).apply {
             putExtra(ReaderActivity.VAR_POST, Parcels.wrap(post.Model))
         }
         startActivity(intent)
@@ -120,7 +121,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     Parcels.unwrap<PostWithColor>(it)
                 }
                 val postVM = PostVM(post.first()!!)
-                openReader(postVM)
+                openReader<ReaderActivity>(postVM)
+            })
+        ContentService.listenEnsurePrivacyPolicy(applicationContext,
+            fun(context:Context?, intent:Intent?):Unit{
+                val post = intent!!.getParcelableArrayExtra(ContentService.RESPONSE_ENSURE_PRIVACY_POLICY).map{
+                    Parcels.unwrap<PostWithColor>(it)
+                }
+                val postVM = PostVM(post.first()!!)
+                openReader<PrivacyActivity>(postVM)
             })
     }
 
@@ -189,8 +198,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun openPrivacyPolicy() {
-        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.PRIVACY_POLICY_URL)))
-        startActivity(browserIntent)
+        ContentService.ensurePrivacyPolicy(applicationContext)
+        //val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.PRIVACY_POLICY_URL)))
+        //startActivity(browserIntent)
     }
 
     private fun aboutUsMenuItemOnClick() {
