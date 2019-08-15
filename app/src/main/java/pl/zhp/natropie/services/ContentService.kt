@@ -20,7 +20,6 @@ import pl.zhp.natropie.tracking.Track
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
-import android.net.NetworkInfo
 import android.net.ConnectivityManager
 import android.util.Log
 import android.widget.Toast
@@ -31,11 +30,13 @@ private const val ACTION_GET_MENU = "pl.zhp.natropie.ui.action.GET_MENU"
 private const val ACTION_GET_POSTS = "pl.zhp.natropie.ui.action.GET_POSTS"
 private const val ACTION_GET_POSTS_CATEGORY_ID = "pl.zhp.natropie.ui.action.ACTION_GET_POSTS_CATEGORY_ID"
 private const val CONFIG_LAST_TIMESTAMP = "lastTimestamp"
-private const val CONFIG_LAST_ABOUTUS_TS = "lastAboutUs"
+private const val CONFIG_LAST_ABOUT_US_TS = "lastAboutUs"
 private const val ACTION_GET_POSTS_WITH_DELAY = "pl.zhp.natropie.ui.action.GET_POSTS_WITH_DELAY"
 private const val ACTION_ENSURE_ABOUT_US = "pl.zhp.natropie.ui.action.ACTION_ENSURE_ABOUT_US"
+private const val ACTION_ENSURE_PRIVACY_POLICY = "pl.zhp.natropie.ui.action.ACTION_ENSURE_PRIVACY_POLICY"
 
 private const val ABOUT_US_DB_ID:Long = -1
+private const val PRIVACY_DB_ID:Long = -2
 private const val ABOUT_US_UPDATE_INTERVAL:Long = 7*24*60*60
 
 /**
@@ -80,12 +81,35 @@ class ContentService : IntentService("ContentService") {
             ACTION_ENSURE_ABOUT_US->{
                 handleEnsureAboutUs()
             }
+            ACTION_ENSURE_PRIVACY_POLICY->{
+                handleDownloadPrivacy()
+            }
         }
+    }
+
+    private fun handleDownloadPrivacy() {
+
+        val table = db.postsRepository()
+
+        if (isNetworkAvailable()) {
+            val post: Post = postsService.getPrivacy().execute().body()!!
+            post.id = PRIVACY_DB_ID
+            table.insert(post)
+        }
+        if (table.exists(PRIVACY_DB_ID)>0) {
+            val postWithColor = table.get(PRIVACY_DB_ID)
+            sendResponse(RESPONSE_ENSURE_PRIVACY_POLICY, listOf(ContentParam<PostWithColor>().apply {
+                Name = RESPONSE_VAR_PRIVACY_POLICY
+                Data = arrayOf(postWithColor)
+            }))
+            return
+        }
+        Toast.makeText(applicationContext,"Brak połączenia internetowego!",Toast.LENGTH_LONG).show()
     }
 
     private fun handleEnsureAboutUs() {
         val table = db.postsRepository()
-        val lastTimestamp = config.getLong(CONFIG_LAST_ABOUTUS_TS, 0)
+        val lastTimestamp = config.getLong(CONFIG_LAST_ABOUT_US_TS, 0)
         val currentTimestamp = System.currentTimeMillis() / 1000
         if (table.exists(ABOUT_US_DB_ID)<=0 || currentTimestamp - lastTimestamp >= ABOUT_US_UPDATE_INTERVAL){
             if (!isNetworkAvailable()){
@@ -188,7 +212,9 @@ class ContentService : IntentService("ContentService") {
         const val RESPONSE_GET_POSTS = "pl.zhp.natropie.services.ContentService.RESPONSE_GET_POSTS"
         const val RESPONSE_VAR_POSTS = "pl.zhp.natropie.services.ContentService.RESPONSE_GET_POSTS"
         const val RESPONSE_ENSURE_ABOUT_US = "pl.zhp.natropie.services.ContentService.RESPONSE_ENSURE_ABOUT_US"
+        const val RESPONSE_ENSURE_PRIVACY_POLICY = "pl.zhp.natropie.services.ContentService.RESPONSE_ENSURE_PRIVACY_POLICY"
         const val RESPONSE_VAR_ABOUT_US = RESPONSE_ENSURE_ABOUT_US
+        const val RESPONSE_VAR_PRIVACY_POLICY = RESPONSE_ENSURE_PRIVACY_POLICY
         const val DELAY:Long = 120*60
 
         fun listenGetMenu(context: Context, callback: (context: Context?, Intent?) -> Unit) {
@@ -250,6 +276,21 @@ class ContentService : IntentService("ContentService") {
         fun listenEnsureAboutUs(context: Context, callback: (Context?, Intent?) -> Unit) {
             listen(
                 RESPONSE_ENSURE_ABOUT_US,
+                callback,
+                context
+            )
+        }
+
+        fun ensurePrivacyPolicy(context: Context) {
+            val intent = Intent(context, ContentService::class.java).apply {
+                action = ACTION_ENSURE_PRIVACY_POLICY
+            }
+            context.startService(intent)
+        }
+
+        fun listenEnsurePrivacyPolicy(context: Context, callback: (Context?, Intent?) -> Unit) {
+            listen(
+                RESPONSE_ENSURE_PRIVACY_POLICY,
                 callback,
                 context
             )

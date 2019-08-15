@@ -54,7 +54,6 @@ class PushNotificationService :FirebaseMessagingService() {
     }
 
     private fun notify(message: RemoteMessage,post: PostWithColor?) {
-        Log.i(TAG, post.toString())
         val intent = Intent(this, ReaderActivity::class.java)
         intent.putExtra(ReaderActivity.VAR_POST,Parcels.wrap(post))
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)

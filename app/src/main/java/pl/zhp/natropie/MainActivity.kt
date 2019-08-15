@@ -1,5 +1,6 @@
 package pl.zhp.natropie
 
+import android.app.IntentService
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -24,6 +25,7 @@ import org.parceler.Parcels
 import pl.zhp.natropie.db.NaTropieDB
 import pl.zhp.natropie.db.entities.Category
 import pl.zhp.natropie.db.entities.PostWithColor
+import pl.zhp.natropie.dialogs.PrivacyActivity
 import pl.zhp.natropie.tracking.Track
 import pl.zhp.natropie.services.ContentService
 import pl.zhp.natropie.services.PushNotificationService
@@ -33,27 +35,14 @@ import pl.zhp.natropie.ui.models.PostVM
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
     AdapterView.OnItemClickListener {
-    /**
-     * Callback method to be invoked when an item in this AdapterView has
-     * been clicked.
-     *
-     *
-     * Implementers can call getItemAtPosition(position) if they need
-     * to access the data associated with the selected item.
-     *
-     * @param parent The AdapterView where the click happened.
-     * @param view The view within the AdapterView that was clicked (this
-     * will be a view provided by the adapter)
-     * @param position The position of the view in the adapter.
-     * @param id The row id of the item that was clicked.
-     */
+
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         val post = postsAdapter.getItem(position) ?: return
-        openReader(post)
+        openReader<ReaderActivity>(post)
     }
 
-    private fun openReader(post: PostVM) {
-        val intent = Intent(this, ReaderActivity::class.java).apply {
+    private inline fun <reified T : Any> openReader(post: PostVM) {
+        val intent = Intent(this, T::class.java).apply {
             putExtra(ReaderActivity.VAR_POST, Parcels.wrap(post.Model))
         }
         startActivity(intent)
@@ -63,9 +52,49 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private lateinit var postPresenter: PostsListPresenter
 
+    private var queringAgreement:Boolean = false
+    private var queringAgreementStarts:Boolean = false
+    private var initialized:Boolean = false
+
+    override fun onPause() {
+        super.onPause()
+        queringAgreementStarts = queringAgreement
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (queringAgreement && queringAgreementStarts){
+            queringAgreementStarts = false
+            queringAgreement = false
+            if (!privacyCheck(false)){
+                finish()
+            }
+            if (!initialized){
+                initializeMain(null)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        Track.initializeWithContext(applicationContext)
         super.onCreate(savedInstanceState)
+        ContentService.listenEnsurePrivacyPolicy(applicationContext,
+            fun(context: Context?, intent: Intent?): Unit {
+                val post = intent!!.getParcelableArrayExtra(ContentService.RESPONSE_ENSURE_PRIVACY_POLICY).map {
+                    Parcels.unwrap<PostWithColor>(it)
+                }
+                val postVM = PostVM(post.first()!!)
+                Log.e(">>>>>>>","opened Privacy")
+                openReader<PrivacyActivity>(postVM)
+            })
+        queringAgreement= true
+        if (privacyCheck(true)) {
+            queringAgreement = false
+            Track.initializeWithContext(applicationContext)
+            initializeMain(savedInstanceState)
+        }
+    }
+
+    private fun initializeMain(savedInstanceState: Bundle?) {
         FirebaseMessaging.getInstance().subscribeToTopic(getString(R.string.notification_topic))
             .addOnCompleteListener { task ->
                 Log.d(PushNotificationService.TAG, task.isSuccessful.toString())
@@ -81,6 +110,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setMenu(nav_view.menu)
         nav_view.setNavigationItemSelectedListener(this)
         initPostList(savedInstanceState)
+        initialized = true
+    }
+
+    private fun privacyCheck(queryAgreement:Boolean):Boolean {
+        val config = getSharedPreferences(PrivacyActivity.SHARED_NAME, IntentService.MODE_PRIVATE)
+        if (!config.getBoolean(PrivacyActivity.STATE_NAME, false)) {
+            if (queryAgreement) {
+                ContentService.ensurePrivacyPolicy(applicationContext)
+            }
+            return false
+        }
+        return true
     }
 
     private lateinit var postsAdapter: PostsAdapter
@@ -115,18 +156,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         ContentService.listenEnsureAboutUs(applicationContext,
-            fun(context:Context?, intent:Intent?):Unit{
-                val post = intent!!.getParcelableArrayExtra(ContentService.RESPONSE_ENSURE_ABOUT_US).map{
+            fun(context: Context?, intent: Intent?): Unit {
+                val post = intent!!.getParcelableArrayExtra(ContentService.RESPONSE_ENSURE_ABOUT_US).map {
                     Parcels.unwrap<PostWithColor>(it)
                 }
                 val postVM = PostVM(post.first()!!)
-                openReader(postVM)
+                openReader<ReaderActivity>(postVM)
             })
+
     }
 
     override fun onDestroy() {
-        NaTropieDB.destroyInstance()
-        postPresenter.detachView()
+        if (initialized) {
+            NaTropieDB.destroyInstance()
+            postPresenter.detachView()
+        }
         super.onDestroy()
     }
 
@@ -189,8 +233,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun openPrivacyPolicy() {
-        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.PRIVACY_POLICY_URL)))
-        startActivity(browserIntent)
+        queringAgreement= true
+        ContentService.ensurePrivacyPolicy(applicationContext)
+        //val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.PRIVACY_POLICY_URL)))
+        //startActivity(browserIntent)
     }
 
     private fun aboutUsMenuItemOnClick() {
