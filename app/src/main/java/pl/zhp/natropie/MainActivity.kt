@@ -2,6 +2,7 @@ package pl.zhp.natropie
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
@@ -183,7 +184,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun customMenuItemsDispatch(item: MenuItem) {
         when (item.itemId) {
             R.id.about_us_menu_item -> aboutUsMenuItemOnClick()
+            R.id.privacy_policy -> openPrivacyPolicy()
         }
+    }
+
+    private fun openPrivacyPolicy() {
+        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.PRIVACY_POLICY_URL)))
+        startActivity(browserIntent)
     }
 
     private fun aboutUsMenuItemOnClick() {
