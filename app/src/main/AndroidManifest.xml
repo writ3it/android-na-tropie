@@ -14,7 +14,8 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             android:usesCleartextTraffic="true">
-        <activity android:name=".dialogs.PrivacyActivity" android:theme="@style/AppTheme.NoActionBar" android:noHistory="true">
+        <activity android:name=".dialogs.PrivacyActivity" android:theme="@style/AppTheme.NoActionBar"
+                  android:noHistory="true">
         </activity>
 
         <meta-data
@@ -35,6 +36,12 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
+
+        <receiver android:name=".UpdateReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+            </intent-filter>
+        </receiver>
 
         <service
                 android:name=".services.PushNotificationService"

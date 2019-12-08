@@ -33,8 +33,6 @@ class NaTropiePage(var content: String) {
         return this
     }
 
-    private val imageSizeRegex = Regex("(width=\\\"[^\"]+\\\"\\s+height=\\\"[^\"]+\\\"|height=\\\"[^\"]+\\\"\\s+width=\\\"[^\"]+\\\")")
-
     fun getHtml():String{
         val data= "<html><head><link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\"/></head>" +
                 "<body><div id=\"content\"><h2 class=\"title\">$title</h2>"+
@@ -54,7 +52,7 @@ class NaTropiePage(var content: String) {
                 } +
         "</p>"+
                 content+"</div></body></html>"
-        return imageSizeRegex.replace(data,"")
+        return data
     }
 
 }
