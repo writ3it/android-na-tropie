@@ -56,11 +56,14 @@ class UpdateReceiver : BroadcastReceiver() {
 
 
     override fun onReceive(context: Context, intent: Intent?) {
-        clearApplicationData(context)
-        deleteTempFolder()
-        config = context.getSharedPreferences("contentUpdatesSettings", IntentService.MODE_PRIVATE)
-        config.edit().clear().apply()
-        Toast.makeText(context,"Aplikacja została zaktualizowana!", Toast.LENGTH_SHORT).show()
+        if (NEED_TO_CLEAR){
+            clearApplicationData(context)
+            deleteTempFolder()
+        }
+        if (NEED_TO_CLEAR_PERFS) {
+            config = context.getSharedPreferences("contentUpdatesSettings", IntentService.MODE_PRIVATE)
+            config.edit().clear().apply()
+        }
     }
 
     fun clearApplicationData(context: Context) {
@@ -77,5 +80,10 @@ class UpdateReceiver : BroadcastReceiver() {
                 File(myDir, children[i]).delete()
             }
         }
+    }
+
+    companion object{
+        val NEED_TO_CLEAR = true
+        val NEED_TO_CLEAR_PERFS = true
     }
 }
