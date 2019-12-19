@@ -22,7 +22,8 @@
                 <ImageView android:layout_width="match_parent"
                            android:layout_height="match_parent"
                            app:srcCompat="@drawable/nt_logo"
-                           android:baselineAlignBottom="false" android:scaleType="fitStart"/>
+                           android:baselineAlignBottom="false" android:scaleType="fitStart" android:clickable="true"
+                           android:onClick="etGoHome"/>
             </FrameLayout>
         </android.support.v7.widget.Toolbar>
 
