@@ -183,6 +183,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    fun openMenu(view:View){
+        drawer_layout.openDrawer(GravityCompat.START)
+    }
+
     fun setMenu(menu: Menu?) {
         menu?.add(0, Menu.FIRST, Menu.NONE, getString(R.string.main_menu_item_name))
         ContentService.listenGetMenu(applicationContext,

@@ -57,6 +57,10 @@ open class ReaderActivity : AppCompatActivity() {
         finish()
     }
 
+    fun etGoHome(view:View){
+        finish()
+    }
+
     companion object {
         const val VAR_POST = "pl.zhp.natropie.ReaderActivity.VAR_POST"
     }
