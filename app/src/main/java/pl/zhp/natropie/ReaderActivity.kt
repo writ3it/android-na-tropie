@@ -1,18 +1,22 @@
 package pl.zhp.natropie
 
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Parcelable
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.webkit.WebView
+import android.widget.Toast
 import kotlinx.android.synthetic.main.app_bar_reader.*
 import kotlinx.android.synthetic.main.content_reader.*
 import org.parceler.Parcels
 import pl.zhp.natropie.db.entities.PostWithColor
 import pl.zhp.natropie.helpers.NaTropiePage
 import pl.zhp.natropie.tracking.Track
+import pl.zhp.natropie.ui.WebView.Reader
 
 open class ReaderActivity : AppCompatActivity() {
 
@@ -24,7 +28,6 @@ open class ReaderActivity : AppCompatActivity() {
     }
 
     private fun initView(webContent:WebView) {
-
         var post:PostWithColor = intent.getParcelableExtra<Parcelable>(VAR_POST).let { Parcels.unwrap<PostWithColor>(it) }
 
         val doc = NaTropiePage(post.content)
@@ -37,6 +40,7 @@ open class ReaderActivity : AppCompatActivity() {
         Track.DisplayPost(post.id, post.title,post.author,post.category)
         webContent.settings.allowUniversalAccessFromFileURLs = true
         webContent.settings.javaScriptEnabled = true
+        webContent.webViewClient = Reader(applicationContext,this)
         webContent.loadDataWithBaseURL("file:///android_asset/",doc.getHtml(),"text/html","UTF-8","")
     }
 

@@ -30,4 +30,7 @@ interface PostsRepository {
 
     @Query("SELECT count(*) FROM posts p ")
     fun havePosts(): Int
+
+    @Query("Select p.*,IFNULL(c.box_color,'#FFFFFF') as color from posts p left join categories c on p.category_id = c.id  WHERE p.slug LIKE :postSlug")
+    fun getBySlug(postSlug: String): PostWithColor?
 }
