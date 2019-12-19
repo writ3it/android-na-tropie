@@ -157,14 +157,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         ContentService.listenEnsureAboutUs(applicationContext,
-            fun(context: Context?, intent: Intent?): Unit {
-                val post = intent!!.getParcelableArrayExtra(ContentService.RESPONSE_ENSURE_ABOUT_US).map {
-                    Parcels.unwrap<PostWithColor>(it)
-                }
-                val postVM = PostVM(post.first()!!)
-                openReader<ReaderActivity>(postVM)
-            })
+            openPage(ContentService.RESPONSE_ENSURE_ABOUT_US))
 
+        ContentService.listenEnsureContact(applicationContext,
+            openPage(ContentService.RESPONSE_ENSURE_CONTACT))
+
+    }
+
+    private fun openPage(responseVar:String): (Context?, Intent?) -> Unit {
+        return fun(context: Context?, intent: Intent?): Unit {
+            val post = intent!!.getParcelableArrayExtra(responseVar).map {
+                Parcels.unwrap<PostWithColor>(it)
+            }
+            val postVM = PostVM(post.first()!!)
+            openReader<ReaderActivity>(postVM)
+        }
     }
 
     override fun onDestroy() {
@@ -241,14 +248,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         when (item.itemId) {
             R.id.about_us_menu_item -> aboutUsMenuItemOnClick()
             R.id.privacy_policy -> openPrivacyPolicy()
+            R.id.contact -> openConctactPage()
         }
+    }
+
+    private fun openConctactPage() {
+        queringAgreement = true
+        ContentService.ensureContact(applicationContext)
     }
 
     private fun openPrivacyPolicy() {
         queringAgreement = true
         ContentService.ensurePrivacyPolicy(applicationContext)
-        //val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.PRIVACY_POLICY_URL)))
-        //startActivity(browserIntent)
     }
 
     private fun aboutUsMenuItemOnClick() {

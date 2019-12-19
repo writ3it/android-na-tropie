@@ -7,10 +7,14 @@ import retrofit2.http.Path
 
 interface PostsService {
     @GET("posts/newest/{timestamp}")
-    fun getFromMainPage(@Path("timestamp") timestamp:Long): Call<List<PostResponse>>
+    fun getFromMainPage(@Path("timestamp") timestamp: Long): Call<List<PostResponse>>
 
     @GET("posts/get-about-us")
-    fun getAboutUs():Call<PostResponse>
+    fun getAboutUs(): Call<PostResponse>
+
     @GET("posts/privacy")
-    fun getPrivacy():Call<PostResponse>
+    fun getPrivacy(): Call<PostResponse>
+
+    @GET("posts/contact")
+    fun getContact(): Call<PostResponse>
 }
