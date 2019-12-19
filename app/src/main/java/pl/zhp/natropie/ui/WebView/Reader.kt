@@ -23,7 +23,7 @@ import pl.zhp.natropie.ui.models.PostVM
 /**
  * TODO: refactor! This isn't toooo much solid
  */
-class Reader(val context: Context, val activity: AppCompatActivity) : WebViewClient() {
+class Reader(val context: Context, private val activity: AppCompatActivity) : WebViewClient() {
     private var job: Job = Job()
     private val scope = CoroutineScope(job + Dispatchers.Main)
     private val table = NaTropieDB.getInstance(context)?.postsRepository()!!
@@ -48,11 +48,14 @@ class Reader(val context: Context, val activity: AppCompatActivity) : WebViewCli
                 table.getBySlug(slug)
             }
             val post: PostWithColor? = job.await()
+            if (post!==null) {
+                val intent = Intent(activity, ReaderActivity::class.java)
+                intent.putExtra(ReaderActivity.VAR_POST, Parcels.wrap(post))
 
-            val intent = Intent(activity, ReaderActivity::class.java)
-            intent.putExtra(ReaderActivity.VAR_POST, Parcels.wrap(post))
-
-            activity.startActivity(intent)
+                activity.startActivity(intent)
+            } else {
+                Toast.makeText(context,"Nie znaleziono artykułu",Toast.LENGTH_LONG).show()
+            }
         }
 
     }
