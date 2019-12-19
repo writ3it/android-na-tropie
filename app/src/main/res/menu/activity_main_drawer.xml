@@ -6,6 +6,10 @@
     <item android:id="@+id/about_us_menu_item"
           android:title="@string/about_us"/>
 
+    <item android:id="@+id/contact"
+          android:title="Kontakt"
+          android:orderInCategory="9998"/>
+
     <item android:id="@+id/privacy_policy"
           android:title="Polityka prywatności"
     android:orderInCategory="9999"/>

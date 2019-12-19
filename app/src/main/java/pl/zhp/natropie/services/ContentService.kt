@@ -23,7 +23,9 @@ import java.util.*
 import android.net.ConnectivityManager
 import android.util.Log
 import android.widget.Toast
+import pl.zhp.natropie.api.responses.PostResponse
 import pl.zhp.natropie.db.entities.PostWithColor
+import retrofit2.Call
 
 
 private const val ACTION_GET_MENU = "pl.zhp.natropie.ui.action.GET_MENU"
@@ -34,16 +36,21 @@ private const val CONFIG_LAST_ABOUT_US_TS = "lastAboutUs"
 private const val ACTION_GET_POSTS_WITH_DELAY = "pl.zhp.natropie.ui.action.GET_POSTS_WITH_DELAY"
 private const val ACTION_ENSURE_ABOUT_US = "pl.zhp.natropie.ui.action.ACTION_ENSURE_ABOUT_US"
 private const val ACTION_ENSURE_PRIVACY_POLICY = "pl.zhp.natropie.ui.action.ACTION_ENSURE_PRIVACY_POLICY"
+private const val ACTION_ENSURE_CONTACT = "pl.zhp.natropie.ui.action.ACTION_ENSURE_CONTACT"
 
-private const val ABOUT_US_DB_ID:Long = -1
-private const val PRIVACY_DB_ID:Long = -2
-private const val ABOUT_US_UPDATE_INTERVAL:Long = 7*24*60*60
+
+private const val ABOUT_US_DB_ID: Long = -1
+private const val PRIVACY_DB_ID: Long = -2
+private const val CONCACT_DB_ID:Long = -3
+private const val ABOUT_US_UPDATE_INTERVAL: Long = 7 * 24 * 60 * 60
 
 /**
  * An [IntentService] subclass for handling asynchronous task requests in
  * a service on a separate handler thread.
 
  * helper methods.
+ *
+ * TODO: extract page fetching (generalization of privacy, contact, aboutus)
  */
 
 class ContentService : IntentService("ContentService") {
@@ -74,48 +81,68 @@ class ContentService : IntentService("ContentService") {
                 val categoryId = intent.getIntExtra(ACTION_GET_POSTS_CATEGORY_ID, 0)
                 handleGetPosts(categoryId)
             }
-            ACTION_GET_POSTS_WITH_DELAY->{
+            ACTION_GET_POSTS_WITH_DELAY -> {
                 val categoryId = intent.getIntExtra(ACTION_GET_POSTS_CATEGORY_ID, 0)
                 handleGetPostsWithDelay(categoryId)
             }
-            ACTION_ENSURE_ABOUT_US->{
+            ACTION_ENSURE_ABOUT_US -> {
                 handleEnsureAboutUs()
             }
-            ACTION_ENSURE_PRIVACY_POLICY->{
+            ACTION_ENSURE_PRIVACY_POLICY -> {
                 handleDownloadPrivacy()
+            }
+            ACTION_ENSURE_CONTACT -> {
+                handleDownloadContact()
             }
         }
     }
 
-    private fun handleDownloadPrivacy() {
+    private fun handleDownloadContact() {
+        downloadPage(
+            postsService.getContact(),
+            CONCACT_DB_ID,
+            RESPONSE_ENSURE_CONTACT,
+            RESPONSE_VAR_CONTACT
+        )
+    }
 
+    private fun downloadPage(request: Call<PostResponse>, id: Long, responseType: String, responseVar: String) {
         val table = db.postsRepository()
 
         if (isNetworkAvailable()) {
-            val post: Post = postsService.getPrivacy().execute().body()!!
-            post.id = PRIVACY_DB_ID
+            val post: Post = request.execute().body()!!
+            post.id = id
             table.insert(post)
         }
-        if (table.exists(PRIVACY_DB_ID)>0) {
-            val postWithColor = table.get(PRIVACY_DB_ID)
-            sendResponse(RESPONSE_ENSURE_PRIVACY_POLICY, listOf(ContentParam<PostWithColor>().apply {
-                Name = RESPONSE_VAR_PRIVACY_POLICY
+        if (table.exists(id) > 0) {
+            val postWithColor = table.get(id)
+            sendResponse(responseType, listOf(ContentParam<PostWithColor>().apply {
+                Name = responseVar
                 Data = arrayOf(postWithColor)
             }))
             return
         }
-        Toast.makeText(applicationContext,"Brak połączenia internetowego!",Toast.LENGTH_LONG).show()
+        Toast.makeText(applicationContext, "Brak połączenia internetowego!", Toast.LENGTH_LONG).show()
+    }
+
+    private fun handleDownloadPrivacy() {
+        downloadPage(
+            postsService.getPrivacy(),
+            PRIVACY_DB_ID,
+            RESPONSE_ENSURE_PRIVACY_POLICY,
+            RESPONSE_VAR_PRIVACY_POLICY
+        )
     }
 
     private fun handleEnsureAboutUs() {
         val table = db.postsRepository()
         val lastTimestamp = config.getLong(CONFIG_LAST_ABOUT_US_TS, 0)
         val currentTimestamp = System.currentTimeMillis() / 1000
-        if (table.exists(ABOUT_US_DB_ID)<=0 || currentTimestamp - lastTimestamp >= ABOUT_US_UPDATE_INTERVAL){
-            if (!isNetworkAvailable()){
+        if (table.exists(ABOUT_US_DB_ID) <= 0 || currentTimestamp - lastTimestamp >= ABOUT_US_UPDATE_INTERVAL) {
+            if (!isNetworkAvailable()) {
                 return // no internet
             }
-            val post:Post = postsService.getAboutUs().execute().body()!!
+            val post: Post = postsService.getAboutUs().execute().body()!!
             post.id = ABOUT_US_DB_ID
             table.insert(post)
         }
@@ -128,12 +155,12 @@ class ContentService : IntentService("ContentService") {
     }
 
     private fun handleGetPostsWithDelay(categoryId: Int) {
-        handleGetPosts(categoryId,DELAY)
+        handleGetPosts(categoryId, DELAY)
     }
 
-    private fun handleGetPosts(categoryId: Int, timeOffset:Long = 0) {
-        Log.i(">>>>>>>>>>>","handleGetPosts")
-        if (!isNetworkAvailable()){
+    private fun handleGetPosts(categoryId: Int, timeOffset: Long = 0) {
+        Log.i(">>>>>>>>>>>", "handleGetPosts")
+        if (!isNetworkAvailable()) {
             sendResponse<NothingResponse>(RESPONSE_GET_POSTS)
             return
         }
@@ -142,10 +169,10 @@ class ContentService : IntentService("ContentService") {
             var lastTimestamp = config.getLong(CONFIG_LAST_TIMESTAMP, 0)
             val currentTimestamp = System.currentTimeMillis() / 1000
             val postCount = table.havePosts()
-            if (postCount==0){
+            if (postCount == 0) {
                 lastTimestamp = 0
             }
-            if (lastTimestamp < currentTimestamp - timeOffset){
+            if (lastTimestamp < currentTimestamp - timeOffset) {
                 Track.DownloadPosts(lastTimestamp)
                 config.edit().putLong(CONFIG_LAST_TIMESTAMP, currentTimestamp).apply()
                 postsService.getFromMainPage(lastTimestamp).execute().body()
@@ -169,7 +196,7 @@ class ContentService : IntentService("ContentService") {
      */
     private fun handleGetMenu() {
         var table = db.categoriesRepository()
-        if (isNetworkAvailable()){
+        if (isNetworkAvailable()) {
             val categoriesList = categoriesService.listCategories().execute().body()
             for (cc in categoriesList!!.iterator()) {
                 try {
@@ -212,10 +239,13 @@ class ContentService : IntentService("ContentService") {
         const val RESPONSE_GET_POSTS = "pl.zhp.natropie.services.ContentService.RESPONSE_GET_POSTS"
         const val RESPONSE_VAR_POSTS = "pl.zhp.natropie.services.ContentService.RESPONSE_GET_POSTS"
         const val RESPONSE_ENSURE_ABOUT_US = "pl.zhp.natropie.services.ContentService.RESPONSE_ENSURE_ABOUT_US"
-        const val RESPONSE_ENSURE_PRIVACY_POLICY = "pl.zhp.natropie.services.ContentService.RESPONSE_ENSURE_PRIVACY_POLICY"
+        const val RESPONSE_ENSURE_PRIVACY_POLICY =
+            "pl.zhp.natropie.services.ContentService.RESPONSE_ENSURE_PRIVACY_POLICY"
+        const val RESPONSE_ENSURE_CONTACT = "pl.zhp.natropie.services.ContentService.RESPONSE_ENSURE_CONTACT"
         const val RESPONSE_VAR_ABOUT_US = RESPONSE_ENSURE_ABOUT_US
         const val RESPONSE_VAR_PRIVACY_POLICY = RESPONSE_ENSURE_PRIVACY_POLICY
-        const val DELAY:Long = 120*60
+        const val RESPONSE_VAR_CONTACT = RESPONSE_ENSURE_CONTACT
+        const val DELAY: Long = 120 * 60
 
         fun listenGetMenu(context: Context, callback: (context: Context?, Intent?) -> Unit) {
             listen(
@@ -266,7 +296,7 @@ class ContentService : IntentService("ContentService") {
             context.startService(intent)
         }
 
-        fun ensureAboutUs(context:Context) {
+        fun ensureAboutUs(context: Context) {
             val intent = Intent(context, ContentService::class.java).apply {
                 action = ACTION_ENSURE_ABOUT_US
             }
@@ -291,6 +321,21 @@ class ContentService : IntentService("ContentService") {
         fun listenEnsurePrivacyPolicy(context: Context, callback: (Context?, Intent?) -> Unit) {
             listen(
                 RESPONSE_ENSURE_PRIVACY_POLICY,
+                callback,
+                context
+            )
+        }
+
+        fun ensureContact(context: Context) {
+            val intent = Intent(context, ContentService::class.java).apply {
+                action = ACTION_ENSURE_CONTACT
+            }
+            context.startService(intent)
+        }
+
+        fun listenEnsureContact(context: Context, callback: (Context?, Intent?) -> Unit) {
+            listen(
+                RESPONSE_ENSURE_CONTACT,
                 callback,
                 context
             )
