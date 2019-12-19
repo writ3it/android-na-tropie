@@ -55,8 +55,11 @@ class UpdateReceiver : BroadcastReceiver() {
     private lateinit var config: SharedPreferences
 
 
-    override fun onReceive(context: Context, intent: Intent?) {
-        if (NEED_TO_CLEAR){
+    override fun onReceive(context: Context?, intent: Intent?) {
+        if (context == null) {
+            return
+        }
+        if (NEED_TO_CLEAR) {
             clearApplicationData(context)
             deleteTempFolder()
         }
@@ -82,8 +85,8 @@ class UpdateReceiver : BroadcastReceiver() {
         }
     }
 
-    companion object{
-        val NEED_TO_CLEAR = true
-        val NEED_TO_CLEAR_PERFS = true
+    companion object {
+        val NEED_TO_CLEAR = false
+        val NEED_TO_CLEAR_PERFS = false
     }
 }
