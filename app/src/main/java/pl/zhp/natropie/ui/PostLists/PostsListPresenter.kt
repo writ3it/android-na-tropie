@@ -6,6 +6,7 @@ import android.provider.Contacts
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.SimpleCursorAdapter
+import android.widget.Toast
 import kotlinx.coroutines.*
 import pl.zhp.natropie.R
 import pl.zhp.natropie.db.entities.Post

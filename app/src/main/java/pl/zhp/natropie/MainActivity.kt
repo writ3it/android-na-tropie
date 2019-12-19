@@ -52,9 +52,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private lateinit var postPresenter: PostsListPresenter
 
-    private var queringAgreement:Boolean = false
-    private var queringAgreementStarts:Boolean = false
-    private var initialized:Boolean = false
+    private var queringAgreement: Boolean = false
+    private var queringAgreementStarts: Boolean = false
+    private var initialized: Boolean = false
 
     override fun onPause() {
         super.onPause()
@@ -63,13 +63,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onResume() {
         super.onResume()
-        if (queringAgreement && queringAgreementStarts){
+        if (queringAgreement && queringAgreementStarts) {
             queringAgreementStarts = false
             queringAgreement = false
-            if (!privacyCheck(false)){
+            if (!privacyCheck(false)) {
                 finish()
             }
-            if (!initialized){
+            if (!initialized) {
                 initializeMain(null)
             }
         }
@@ -83,10 +83,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     Parcels.unwrap<PostWithColor>(it)
                 }
                 val postVM = PostVM(post.first()!!)
-                Log.e(">>>>>>>","opened Privacy")
+                Log.e(">>>>>>>", "opened Privacy")
                 openReader<PrivacyActivity>(postVM)
             })
-        queringAgreement= true
+        queringAgreement = true
         if (privacyCheck(true)) {
             queringAgreement = false
             initializeMain(savedInstanceState)
@@ -113,7 +113,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         initialized = true
     }
 
-    private fun privacyCheck(queryAgreement:Boolean):Boolean {
+    private fun privacyCheck(queryAgreement: Boolean): Boolean {
         val config = getSharedPreferences(PrivacyActivity.SHARED_NAME, IntentService.MODE_PRIVATE)
         if (!config.getBoolean(PrivacyActivity.STATE_NAME, false)) {
             if (queryAgreement) {
@@ -141,6 +141,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             fun(context: Context?, intent: Intent?): Unit {
                 postPresenter.setCategoryId(selectedCategoryId)
                 postPresenter.refresh()
+
                 pullToRefresh.isRefreshing = false
             })
         if (savedInstanceState == null) {
@@ -216,13 +217,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         if (item.itemId > LIMIT_ITEM_ID) {
             customMenuItemsDispatch(item)
+            drawer_layout.closeDrawer(GravityCompat.START)
         } else {
-            selectedCategoryId = item.itemId - Menu.FIRST
-            ContentService.getPosts(applicationContext, selectedCategoryId)
-            postsListView.setSelectionAfterHeaderView()
+            goToCategory(item.itemId - Menu.FIRST)
         }
-        drawer_layout.closeDrawer(GravityCompat.START)
+
         return true
+    }
+
+    fun goToCategory(ID: Int) {
+        selectedCategoryId = ID
+        selectedCategoryId = ID
+        ContentService.getPosts(applicationContext, ID)
+        postsListView.setSelectionAfterHeaderView()
+        drawer_layout.closeDrawer(GravityCompat.START)
     }
 
     private fun customMenuItemsDispatch(item: MenuItem) {
@@ -233,7 +241,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun openPrivacyPolicy() {
-        queringAgreement= true
+        queringAgreement = true
         ContentService.ensurePrivacyPolicy(applicationContext)
         //val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.PRIVACY_POLICY_URL)))
         //startActivity(browserIntent)
@@ -241,6 +249,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun aboutUsMenuItemOnClick() {
         ContentService.ensureAboutUs(applicationContext)
+    }
+
+    fun etGoHome(view:View) {
+        goToCategory(0)
     }
 
 
