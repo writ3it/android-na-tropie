@@ -30,7 +30,9 @@ class Reader(val context: Context, private val activity: AppCompatActivity) : We
 
     override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
         if (!url.startsWith(READER_PREFIX)) {
+            Toast.makeText(context,url, Toast.LENGTH_SHORT).show()
             val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            browserIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             context.startActivity(browserIntent)
             return true
         }
@@ -51,7 +53,7 @@ class Reader(val context: Context, private val activity: AppCompatActivity) : We
             if (post!==null) {
                 val intent = Intent(activity, ReaderActivity::class.java)
                 intent.putExtra(ReaderActivity.VAR_POST, Parcels.wrap(post))
-
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 activity.startActivity(intent)
             } else {
                 Toast.makeText(context,"Nie znaleziono artykułu",Toast.LENGTH_LONG).show()
