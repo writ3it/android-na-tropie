@@ -20,28 +20,22 @@ import pl.zhp.natropie.ui.WebView.Reader
 
 open class ReaderActivity : AppCompatActivity() {
 
+    private lateinit var  reader: Reader
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reader)
         setSupportActionBar(toolbar)
+        reader = Reader(applicationContext,this)
         initView(web_content)
     }
 
     private fun initView(webContent:WebView) {
         var post:PostWithColor = intent.getParcelableExtra<Parcelable>(VAR_POST).let { Parcels.unwrap<PostWithColor>(it) }
-
-        val doc = NaTropiePage(post.content)
-        doc.setTitle(post.title)
-        if(post.category!="PAGES") {
-            doc.setAuthor(post.author)
-                .setCategory(post.category)
-                .setDate(post.date)
-        }
-        Track.DisplayPost(post.id, post.title,post.author,post.category)
+        webContent.webViewClient = reader
         webContent.settings.allowUniversalAccessFromFileURLs = true
         webContent.settings.javaScriptEnabled = true
-        webContent.webViewClient = Reader(applicationContext,this)
-        webContent.loadDataWithBaseURL("file:///android_asset/",doc.getHtml(),"text/html","UTF-8","")
+        reader.loadPage(webContent, post)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
