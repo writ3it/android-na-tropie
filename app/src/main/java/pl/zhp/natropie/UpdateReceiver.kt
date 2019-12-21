@@ -86,7 +86,7 @@ class UpdateReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        val NEED_TO_CLEAR = false
-        val NEED_TO_CLEAR_PERFS = false
+        val NEED_TO_CLEAR = true
+        val NEED_TO_CLEAR_PERFS = true
     }
 }
