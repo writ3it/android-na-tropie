@@ -31,7 +31,7 @@ class Reader(val context: Context, private val activity: AppCompatActivity) : We
 
     override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
         if (!url.startsWith(READER_PREFIX)) {
-            Toast.makeText(context, url, Toast.LENGTH_SHORT).show()
+            //Toast.makeText(context, url, Toast.LENGTH_SHORT).show()
             val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
             browserIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             context.startActivity(browserIntent)
