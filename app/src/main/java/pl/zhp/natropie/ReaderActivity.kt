@@ -51,10 +51,6 @@ open class ReaderActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    fun test(view: View){
-        finish()
-    }
-
     fun etGoHome(view:View){
         finish()
     }
