@@ -17,21 +17,29 @@ import pl.zhp.natropie.db.entities.PostWithColor
 import pl.zhp.natropie.helpers.NaTropiePage
 import pl.zhp.natropie.tracking.Track
 import pl.zhp.natropie.ui.WebView.Reader
+import android.support.v4.app.SupportActivity
+import android.support.v4.app.SupportActivity.ExtraData
+import android.support.v4.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+
 
 open class ReaderActivity : AppCompatActivity() {
 
-    private lateinit var  reader: Reader
+    private var currentPost: PostWithColor? = null
+    private lateinit var reader: Reader
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reader)
         setSupportActionBar(toolbar)
-        reader = Reader(applicationContext,this)
+        reader = Reader(applicationContext, this)
         initView(web_content)
     }
 
-    private fun initView(webContent:WebView) {
-        var post:PostWithColor = intent.getParcelableExtra<Parcelable>(VAR_POST).let { Parcels.unwrap<PostWithColor>(it) }
+    private fun initView(webContent: WebView) {
+        var post: PostWithColor = intent.getParcelableExtra<Parcelable>(VAR_POST)
+            .let { Parcels.unwrap<PostWithColor>(it) }
+        currentPost = post
         webContent.webViewClient = reader
         webContent.settings.allowUniversalAccessFromFileURLs = true
         webContent.settings.javaScriptEnabled = true
@@ -39,19 +47,36 @@ open class ReaderActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.activity_reader_drawer,menu)
+        menuInflater.inflate(R.menu.activity_reader_drawer, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (item?.itemId == R.id.action_back){
+        if (item?.itemId == R.id.action_back) {
             finish()
             return true
+        }
+        if (item?.itemId == R.id.share) {
+            share()
         }
         return super.onOptionsItemSelected(item)
     }
 
-    fun etGoHome(view:View){
+    private fun share() {
+        if (currentPost == null) {
+            return
+        }
+        val sharingIntent = Intent(Intent.ACTION_SEND)
+        sharingIntent.type = "text/plain"
+        sharingIntent.putExtra(Intent.EXTRA_SUBJECT, currentPost!!.title)
+        sharingIntent.putExtra(
+            Intent.EXTRA_TEXT,
+           getString(R.string.NT_SHARE_PATTERN).format(currentPost!!.title, currentPost!!.slug)
+        )
+        startActivity(Intent.createChooser(sharingIntent, "Udostępnij przez"))
+    }
+
+    fun etGoHome(view: View) {
         finish()
     }
 
