@@ -77,7 +77,7 @@ class PushNotificationService : FirebaseMessagingService() {
         val icon =
             BitmapFactory.decodeResource(applicationContext.resources, R.drawable.nt_small_logo)
         val builder = NotificationCompat.Builder(this)
-            .setSmallIcon(R.drawable.nt_small_logo)
+            .setSmallIcon(R.drawable.nt_push_icon)
             .setLargeIcon(icon)
             .setColor(Color.rgb(0, 0, 0))
             .setContentTitle("Na Tropie pisze!")
