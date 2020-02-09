@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Parcelable
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
@@ -21,6 +22,7 @@ import android.widget.AdapterView
 import android.widget.Toast
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.coroutines.*
 import org.parceler.Parcels
 import pl.zhp.natropie.db.NaTropieDB
 import pl.zhp.natropie.db.entities.Category
@@ -33,6 +35,9 @@ import pl.zhp.natropie.ui.PostLists.PostsAdapter
 import pl.zhp.natropie.ui.PostLists.PostsListPresenter
 import pl.zhp.natropie.ui.models.PostVM
 
+/**
+ * TODO: refactoring
+ */
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
     AdapterView.OnItemClickListener {
 
@@ -44,6 +49,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private inline fun <reified T : Any> openReader(post: PostVM) {
         val intent = Intent(this, T::class.java).apply {
             putExtra(ReaderActivity.VAR_POST, Parcels.wrap(post.Model))
+        }
+        startActivity(intent)
+    }
+
+    private inline fun <reified T : Any> openReader(post: PostWithColor) {
+        val intent = Intent(this, T::class.java).apply {
+            putExtra(ReaderActivity.VAR_POST, Parcels.wrap(post))
         }
         startActivity(intent)
     }
@@ -79,9 +91,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onCreate(savedInstanceState)
         ContentService.listenEnsurePrivacyPolicy(applicationContext,
             fun(context: Context?, intent: Intent?): Unit {
-                val post = intent!!.getParcelableArrayExtra(ContentService.RESPONSE_ENSURE_PRIVACY_POLICY).map {
-                    Parcels.unwrap<PostWithColor>(it)
-                }
+                val post =
+                    intent!!.getParcelableArrayExtra(ContentService.RESPONSE_ENSURE_PRIVACY_POLICY)
+                        .map {
+                            Parcels.unwrap<PostWithColor>(it)
+                        }
                 val postVM = PostVM(post.first()!!)
                 Log.e(">>>>>>>", "opened Privacy")
                 openReader<PrivacyActivity>(postVM)
@@ -103,7 +117,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setSupportActionBar(toolbar)
 
         val toggle = ActionBarDrawerToggle(
-            this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
+            this,
+            drawer_layout,
+            toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
         )
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
@@ -111,6 +129,38 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         nav_view.setNavigationItemSelectedListener(this)
         initPostList(savedInstanceState)
         initialized = true
+        openReaderIfNecesary(savedInstanceState)
+    }
+
+    private fun openReaderIfNecesary(savedInstanceState: Bundle?) {
+        if (intent.extras == null) {
+            return
+        }
+        if (!intent.hasExtra(ReaderActivity.VAR_POST) && !intent.hasExtra("item_id")) {
+            return
+        }
+        GlobalScope.launch {
+            var job = GlobalScope.async {
+                var post: PostWithColor? = null
+                if (intent.hasExtra(ReaderActivity.VAR_POST)) {
+                    post = intent.getParcelableExtra<Parcelable>(ReaderActivity.VAR_POST).let {
+                        Parcels.unwrap<PostWithColor>(it)
+                    }
+                }
+                if (intent.hasExtra("item_id")) {
+                    Log.i("****Test****", intent.getStringExtra("item_id").toString())
+                    post = NaTropieDB.getInstance(applicationContext)?.postsRepository()?.get(
+                        intent.getStringExtra("item_id").toLong()
+                    )
+                }
+                post
+            }
+            val post = job.await()
+            if (post != null) {
+                openReader<ReaderActivity>(post!!)
+            }
+        }
+
     }
 
     private fun privacyCheck(queryAgreement: Boolean): Boolean {
@@ -132,7 +182,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         postsListView.adapter = postsAdapter
         postsListView.onItemClickListener = this
         postPresenter =
-            PostsListPresenter(applicationContext, NaTropieDB.getInstance(applicationContext)?.postsRepository()!!)
+            PostsListPresenter(
+                applicationContext,
+                NaTropieDB.getInstance(applicationContext)?.postsRepository()!!
+            )
         postPresenter.attachToAdapter(postsAdapter)
 
         val respondend = false
@@ -156,15 +209,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             ContentService.getPosts(applicationContext)
         }
 
-        ContentService.listenEnsureAboutUs(applicationContext,
-            openPage(ContentService.RESPONSE_ENSURE_ABOUT_US))
+        ContentService.listenEnsureAboutUs(
+            applicationContext,
+            openPage(ContentService.RESPONSE_ENSURE_ABOUT_US)
+        )
 
-        ContentService.listenEnsureContact(applicationContext,
-            openPage(ContentService.RESPONSE_ENSURE_CONTACT))
+        ContentService.listenEnsureContact(
+            applicationContext,
+            openPage(ContentService.RESPONSE_ENSURE_CONTACT)
+        )
 
     }
 
-    private fun openPage(responseVar:String): (Context?, Intent?) -> Unit {
+    private fun openPage(responseVar: String): (Context?, Intent?) -> Unit {
         return fun(context: Context?, intent: Intent?): Unit {
             val post = intent!!.getParcelableArrayExtra(responseVar).map {
                 Parcels.unwrap<PostWithColor>(it)
@@ -190,7 +247,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    fun openMenu(view:View){
+    fun openMenu(view: View) {
         drawer_layout.openDrawer(GravityCompat.START)
     }
 
@@ -198,9 +255,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         menu?.add(0, Menu.FIRST, Menu.NONE, getString(R.string.main_menu_item_name))
         ContentService.listenGetMenu(applicationContext,
             fun(context: Context?, intent: Intent?): Unit {
-                val categories = intent!!.getParcelableArrayExtra(ContentService.RESPONSE_VAR_MENU).map {
-                    Parcels.unwrap<Category>(it)
-                }
+                val categories =
+                    intent!!.getParcelableArrayExtra(ContentService.RESPONSE_VAR_MENU).map {
+                        Parcels.unwrap<Category>(it)
+                    }
                 var i = 0
                 for (category in categories) {
                     menu?.add(0, Menu.FIRST + category.id.toInt(), Menu.NONE, category.name)
@@ -266,7 +324,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         ContentService.ensureAboutUs(applicationContext)
     }
 
-    fun etGoHome(view:View) {
+    fun etGoHome(view: View) {
         goToCategory(0)
     }
 

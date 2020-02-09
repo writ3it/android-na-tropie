@@ -9,11 +9,13 @@ import android.media.RingtoneManager
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
 import android.util.Log
+import android.widget.Toast
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.parceler.Parcels
+import pl.zhp.natropie.MainActivity
 import pl.zhp.natropie.R
 import pl.zhp.natropie.ReaderActivity
 import pl.zhp.natropie.db.NaTropieDB
@@ -21,20 +23,27 @@ import pl.zhp.natropie.db.entities.PostWithColor
 import java.util.*
 import kotlin.random.Random
 
-class PushNotificationService :FirebaseMessagingService() {
+class PushNotificationService : FirebaseMessagingService() {
 
     override fun onCreate() {
         super.onCreate()
-        ContentService.listenGetPosts(application,fun(context: Context?, intent:Intent?):Unit{
-            GlobalScope.launch {
-                while(!stackToDisplay.empty()){
-                    val message = stackToDisplay.pop()
-                    val postId = message.data["item_id"]!!.toLong()
-                    val post = NaTropieDB.getInstance(applicationContext)?.postsRepository()?.get(postId) ?: continue
-                    notify(message,post)
+        ContentService.listenGetPosts(
+            applicationContext,
+            fun(context: Context?, intent: Intent?): Unit {
+                GlobalScope.launch {
+                    while (!stackToDisplay.empty()) {
+                        val message = stackToDisplay.pop()
+                        val postId = message.data[VAR_ITEM_ID]!!.toLong()
+                        Log.i(TAG, "Fetched #$postId")
+                        val post =
+                            NaTropieDB.getInstance(applicationContext)?.postsRepository()?.get(
+                                postId
+                            )
+                                ?: continue
+                        notify(message, post)
+                    }
                 }
-            }
-        })
+            })
     }
 
     private val stackToDisplay = Stack<RemoteMessage>()
@@ -46,25 +55,31 @@ class PushNotificationService :FirebaseMessagingService() {
 
     private fun displayNotification(message: RemoteMessage) {
         val data = message.data
-        if (!data.containsKey("item_id")){
+        if (!data.containsKey(VAR_ITEM_ID)) {
             return
         }
         stackToDisplay.add(message)
         ContentService.getPosts(applicationContext)
     }
 
-    private fun notify(message: RemoteMessage,post: PostWithColor?) {
-        val intent = Intent(this, ReaderActivity::class.java)
-        intent.putExtra(ReaderActivity.VAR_POST,Parcels.wrap(post))
+    private fun notify(message: RemoteMessage, post: PostWithColor?) {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra(ReaderActivity.VAR_POST, Parcels.wrap(post))
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        val pIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT)
+        val pIntent = PendingIntent.getActivity(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_UPDATE_CURRENT
+        )
 
         val sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-        val icon = BitmapFactory.decodeResource(applicationContext.resources, R.drawable.nt_small_logo)
+        val icon =
+            BitmapFactory.decodeResource(applicationContext.resources, R.drawable.nt_small_logo)
         val builder = NotificationCompat.Builder(this)
             .setSmallIcon(R.drawable.nt_small_logo)
             .setLargeIcon(icon)
-            .setColor(Color.rgb(0,0,0))
+            .setColor(Color.rgb(0, 0, 0))
             .setContentTitle("Na Tropie pisze!")
             .setContentText(message.notification!!.body)
             .setSound(sound)
