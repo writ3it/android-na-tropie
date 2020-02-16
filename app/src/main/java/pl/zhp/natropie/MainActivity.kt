@@ -3,14 +3,12 @@ package pl.zhp.natropie
 import android.app.IntentService
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.text.Html
 import android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
@@ -19,7 +17,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
-import android.widget.Toast
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.coroutines.*
@@ -193,7 +190,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         ContentService.listenGetPosts(applicationContext,
             fun(context: Context?, intent: Intent?): Unit {
                 postPresenter.setCategoryId(selectedCategoryId)
-                postPresenter.refresh()
+                postPresenter.refresh(fun(){
+                    if (postPresenter.isEmpty()) {
+                        postsListView.background = getDrawable(R.drawable.not_found)
+                    } else {
+                        postsListView.background = null
+                    }
+                })
+
 
                 pullToRefresh.isRefreshing = false
             })

@@ -12,4 +12,5 @@
     <string name="NT_CLIPBOARD_REMOVED">Artykuł został usunięty ze schowka.</string>
     <string name="NT_SHARE_PATTERN">Cześć! Sprawdź co napisano w  Na Tropie! (%s) http://natropie.zhp.pl/index.php/%s/</string>
     <string name="NT_CLIPBOARD_ADDED">Artykuł został dodany do schowka!</string>
+    <string name="nothing_here">Nic tu nie ma!</string>
 </resources>

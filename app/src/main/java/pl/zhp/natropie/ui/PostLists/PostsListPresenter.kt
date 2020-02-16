@@ -20,12 +20,13 @@ import java.lang.Exception
 class PostsListPresenter(val context: Context?, val table: PostsRepository) {
     private var job: Job = Job()
     private val scope = CoroutineScope(job + Dispatchers.Main)
+    private var empty: Boolean = true
 
     fun detachView() {
         job.cancel()
     }
 
-    fun refresh() {
+    fun refresh(callback: (() -> Unit)? = null) {
         scope.launch {
             val job = GlobalScope.async {
                 Log.i("@PostsListPresenter", "Display from list = $categoryId")
@@ -47,7 +48,9 @@ class PostsListPresenter(val context: Context?, val table: PostsRepository) {
             }
             val data = job.await()
             Log.i("@PostsListPresenter", "Posts to display = " + data.size.toString())
+            empty = data.isEmpty()
             adapter?.showPostsList(data.map { PostVM(it) })
+            callback?.let { it() }
         }
     }
 
@@ -65,6 +68,10 @@ class PostsListPresenter(val context: Context?, val table: PostsRepository) {
 
     fun setAsClipboard() {
         categoryId = CLIPBOARD
+    }
+
+    fun isEmpty(): Boolean {
+        return empty
     }
 
     companion object {
