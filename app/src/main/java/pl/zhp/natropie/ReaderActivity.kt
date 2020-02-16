@@ -88,7 +88,7 @@ open class ReaderActivity : AppCompatActivity() {
                 setBookmarked(item)
                 Toast.makeText(
                     applicationContext,
-                    "Artykuł został zapisany w schowku!",
+                    getString(R.string.NT_CLIPBOARD_ADDED),
                     Toast.LENGTH_SHORT
                 )
                     .show()
@@ -96,7 +96,7 @@ open class ReaderActivity : AppCompatActivity() {
                 clipboardManager.remove(currentPost!!)
                 Toast.makeText(
                     applicationContext,
-                    "Artykuł został usunięty ze schowka!",
+                    getString(R.string.NT_CLIPBOARD_REMOVED),
                     Toast.LENGTH_SHORT
                 )
                     .show()
