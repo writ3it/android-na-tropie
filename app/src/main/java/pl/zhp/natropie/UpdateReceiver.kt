@@ -64,7 +64,8 @@ class UpdateReceiver : BroadcastReceiver() {
             deleteTempFolder()
         }
         if (NEED_TO_CLEAR_PERFS) {
-            config = context.getSharedPreferences("contentUpdatesSettings", IntentService.MODE_PRIVATE)
+            config =
+                context.getSharedPreferences("contentUpdatesSettings", IntentService.MODE_PRIVATE)
             config.edit().clear().apply()
         }
     }
@@ -79,8 +80,10 @@ class UpdateReceiver : BroadcastReceiver() {
         val myDir = getExternalStorageDirectory()
         if (myDir.isDirectory) {
             val children = myDir.list()
-            for (i in children.indices) {
-                File(myDir, children[i]).delete()
+            if (children != null) {
+                for (i in children.indices) {
+                    File(myDir, children[i]).delete()
+                }
             }
         }
     }
