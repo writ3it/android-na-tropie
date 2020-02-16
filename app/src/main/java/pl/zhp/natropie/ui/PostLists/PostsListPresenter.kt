@@ -3,6 +3,7 @@ package pl.zhp.natropie.ui.PostLists
 import android.content.Context
 import android.database.Cursor
 import android.provider.Contacts
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.SimpleCursorAdapter
@@ -16,7 +17,7 @@ import pl.zhp.natropie.ui.models.PostVM
 import java.lang.Exception
 
 
-class PostsListPresenter(val context: Context?, val table:PostsRepository){
+class PostsListPresenter(val context: Context?, val table: PostsRepository) {
     private var job: Job = Job()
     private val scope = CoroutineScope(job + Dispatchers.Main)
 
@@ -24,19 +25,28 @@ class PostsListPresenter(val context: Context?, val table:PostsRepository){
         job.cancel()
     }
 
-    fun refresh(){
+    fun refresh() {
         scope.launch {
             val job = GlobalScope.async {
-                if (categoryId == 0) {
-                    Track.DisplayList(Track.MAINPAGE)
-                    table.getForMainPage()
-                } else {
-                    val result =table.getFor(categoryId)
-                    Track.DisplayList(result.first().category)
-                    result
+                Log.i("@PostsListPresenter", "Display from list = $categoryId")
+                when (categoryId) {
+                    CLIPBOARD -> {
+                        Track.DisplayList(Track.CLIPBOARD)
+                        table.getFromClipboard()
+                    }
+                    MAINPAGE -> {
+                        Track.DisplayList(Track.MAINPAGE)
+                        table.getForMainPage()
+                    }
+                    else -> {
+                        val result = table.getFor(categoryId)
+                        Track.DisplayList(result.first().category)
+                        result
+                    }
                 }
             }
             val data = job.await()
+            Log.i("@PostsListPresenter", "Posts to display = " + data.size.toString())
             adapter?.showPostsList(data.map { PostVM(it) })
         }
     }
@@ -53,7 +63,16 @@ class PostsListPresenter(val context: Context?, val table:PostsRepository){
         categoryId = selectedCategoryId
     }
 
-    interface UpdatetableAdapter{
-        fun showPostsList(data:List<PostVM>)
+    fun setAsClipboard() {
+        categoryId = CLIPBOARD
+    }
+
+    companion object {
+        private const val CLIPBOARD = -1
+        private const val MAINPAGE = 0
+    }
+
+    interface UpdatetableAdapter {
+        fun showPostsList(data: List<PostVM>)
     }
 }

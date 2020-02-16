@@ -11,13 +11,16 @@ import pl.zhp.natropie.db.entities.PostWithColor
 @Dao
 interface PostsRepository {
     @Query("Select * from posts LIMIT 100")
-    fun getTop():List<Post>
+    fun getTop(): List<Post>
 
     @Query("Select p.*,c.box_color as color from posts p join categories c on p.category_id = c.id  ORDER BY date DESC LIMIT 100")
-    fun getForMainPage():List<PostWithColor>
+    fun getForMainPage(): List<PostWithColor>
 
-    @Insert(onConflict= OnConflictStrategy.REPLACE)
-    fun insert(data:Post)
+    @Query("Select p.*,c.box_color as color from posts p join categories c on p.category_id = c.id join clipboard_items ci ON ci.post_id = p.id ORDER BY date DESC LIMIT 100")
+    fun getFromClipboard(): List<PostWithColor>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(data: Post)
 
     @Query("Select p.*,c.box_color as color from posts p join categories c on p.category_id = c.id WHERE category_id = :categoryId ORDER BY date DESC LIMIT 100")
     fun getFor(categoryId: Int): List<PostWithColor>
@@ -26,11 +29,12 @@ interface PostsRepository {
     fun get(postId: Long): PostWithColor
 
     @Query("SELECT count(*) FROM posts p WHERE p.id=:postId")
-    fun exists(postId:Long):Int
+    fun exists(postId: Long): Int
 
     @Query("SELECT count(*) FROM posts p ")
     fun havePosts(): Int
 
     @Query("Select p.*,IFNULL(c.box_color,'#FFFFFF') as color from posts p left join categories c on p.category_id = c.id  WHERE p.slug LIKE :postSlug")
     fun getBySlug(postSlug: String): PostWithColor?
+
 }

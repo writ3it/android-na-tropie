@@ -307,6 +307,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.about_us_menu_item -> aboutUsMenuItemOnClick()
             R.id.privacy_policy -> openPrivacyPolicy()
             R.id.contact -> openConctactPage()
+            R.id.clipboard_list_item -> goToCategory(CLIPBOARD)
         }
     }
 
@@ -330,7 +331,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     companion object {
-        const val VAR_CATEGORY_ID = "pl.zhp.natropie.MainActivity.VAR_CATEGORY_ID";
-        const val LIMIT_ITEM_ID = 1000;
+        const val VAR_CATEGORY_ID = "pl.zhp.natropie.MainActivity.VAR_CATEGORY_ID"
+        const val LIMIT_ITEM_ID = 1000
+        const val CLIPBOARD = -1
     }
 }

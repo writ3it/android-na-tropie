@@ -79,6 +79,7 @@ object Track {
     val Event = TrackedEvents
     val Param = TrackedParams
     const val MAINPAGE: String = "Strona główna"
+    const val CLIPBOARD: String = "Schowek"
 
 }
 

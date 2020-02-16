@@ -30,18 +30,20 @@ import retrofit2.Call
 
 private const val ACTION_GET_MENU = "pl.zhp.natropie.ui.action.GET_MENU"
 private const val ACTION_GET_POSTS = "pl.zhp.natropie.ui.action.GET_POSTS"
-private const val ACTION_GET_POSTS_CATEGORY_ID = "pl.zhp.natropie.ui.action.ACTION_GET_POSTS_CATEGORY_ID"
+private const val ACTION_GET_POSTS_CATEGORY_ID =
+    "pl.zhp.natropie.ui.action.ACTION_GET_POSTS_CATEGORY_ID"
 private const val CONFIG_LAST_TIMESTAMP = "lastTimestamp"
 private const val CONFIG_LAST_ABOUT_US_TS = "lastAboutUs"
 private const val ACTION_GET_POSTS_WITH_DELAY = "pl.zhp.natropie.ui.action.GET_POSTS_WITH_DELAY"
 private const val ACTION_ENSURE_ABOUT_US = "pl.zhp.natropie.ui.action.ACTION_ENSURE_ABOUT_US"
-private const val ACTION_ENSURE_PRIVACY_POLICY = "pl.zhp.natropie.ui.action.ACTION_ENSURE_PRIVACY_POLICY"
+private const val ACTION_ENSURE_PRIVACY_POLICY =
+    "pl.zhp.natropie.ui.action.ACTION_ENSURE_PRIVACY_POLICY"
 private const val ACTION_ENSURE_CONTACT = "pl.zhp.natropie.ui.action.ACTION_ENSURE_CONTACT"
 
 
 private const val ABOUT_US_DB_ID: Long = -1
 private const val PRIVACY_DB_ID: Long = -2
-private const val CONCACT_DB_ID:Long = -3
+private const val CONCACT_DB_ID: Long = -3
 private const val ABOUT_US_UPDATE_INTERVAL: Long = 7 * 24 * 60 * 60
 
 /**
@@ -63,9 +65,10 @@ class ContentService : IntentService("ContentService") {
     override fun onCreate() {
         db = NaTropieDB.getInstance(this)!!
         val gson = GsonBuilder().registerTypeAdapter(Date::class.java, DateSerializer()).create()
-        val rf = Retrofit.Builder().baseUrl(resources.getString(R.string.NT_API_URL)).addConverterFactory(
-            GsonConverterFactory.create(gson)
-        ).build()
+        val rf = Retrofit.Builder().baseUrl(resources.getString(R.string.NT_API_URL))
+            .addConverterFactory(
+                GsonConverterFactory.create(gson)
+            ).build()
         categoriesService = rf.create(CategoriesService::class.java)
         postsService = rf.create(PostsService::class.java)
         config = getSharedPreferences("contentUpdatesSettings", MODE_PRIVATE)
@@ -106,7 +109,12 @@ class ContentService : IntentService("ContentService") {
         )
     }
 
-    private fun downloadPage(request: Call<PostResponse>, id: Long, responseType: String, responseVar: String) {
+    private fun downloadPage(
+        request: Call<PostResponse>,
+        id: Long,
+        responseType: String,
+        responseVar: String
+    ) {
         val table = db.postsRepository()
 
         if (isNetworkAvailable()) {
@@ -122,7 +130,8 @@ class ContentService : IntentService("ContentService") {
             }))
             return
         }
-        Toast.makeText(applicationContext, "Brak połączenia internetowego!", Toast.LENGTH_LONG).show()
+        Toast.makeText(applicationContext, "Brak połączenia internetowego!", Toast.LENGTH_LONG)
+            .show()
     }
 
     private fun handleDownloadPrivacy() {
@@ -215,7 +224,10 @@ class ContentService : IntentService("ContentService") {
         }))
     }
 
-    private fun <T : AEntity> sendResponse(broadcastName: String, list: List<ContentParam<T>>? = null) {
+    private fun <T : AEntity> sendResponse(
+        broadcastName: String,
+        list: List<ContentParam<T>>? = null
+    ) {
         val intent = Intent(broadcastName).apply {
             if (list != null) {
                 for (param in list) {
@@ -227,7 +239,8 @@ class ContentService : IntentService("ContentService") {
     }
 
     private fun isNetworkAvailable(): Boolean {
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager =
+            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetworkInfo = connectivityManager.activeNetworkInfo
         return activeNetworkInfo != null && activeNetworkInfo.isConnected
     }
@@ -235,13 +248,16 @@ class ContentService : IntentService("ContentService") {
 
     companion object {
         const val RESPONSE_GET_MENU = "pl.zhp.natropie.services.ContentService.RESPONSE_GET_MENU"
-        const val RESPONSE_VAR_MENU = "pl.zhp.natropie.services.ContentService.RESPONSE_GET_MENU.VAR_MENU"
+        const val RESPONSE_VAR_MENU =
+            "pl.zhp.natropie.services.ContentService.RESPONSE_GET_MENU.VAR_MENU"
         const val RESPONSE_GET_POSTS = "pl.zhp.natropie.services.ContentService.RESPONSE_GET_POSTS"
         const val RESPONSE_VAR_POSTS = "pl.zhp.natropie.services.ContentService.RESPONSE_GET_POSTS"
-        const val RESPONSE_ENSURE_ABOUT_US = "pl.zhp.natropie.services.ContentService.RESPONSE_ENSURE_ABOUT_US"
+        const val RESPONSE_ENSURE_ABOUT_US =
+            "pl.zhp.natropie.services.ContentService.RESPONSE_ENSURE_ABOUT_US"
         const val RESPONSE_ENSURE_PRIVACY_POLICY =
             "pl.zhp.natropie.services.ContentService.RESPONSE_ENSURE_PRIVACY_POLICY"
-        const val RESPONSE_ENSURE_CONTACT = "pl.zhp.natropie.services.ContentService.RESPONSE_ENSURE_CONTACT"
+        const val RESPONSE_ENSURE_CONTACT =
+            "pl.zhp.natropie.services.ContentService.RESPONSE_ENSURE_CONTACT"
         const val RESPONSE_VAR_ABOUT_US = RESPONSE_ENSURE_ABOUT_US
         const val RESPONSE_VAR_PRIVACY_POLICY = RESPONSE_ENSURE_PRIVACY_POLICY
         const val RESPONSE_VAR_CONTACT = RESPONSE_ENSURE_CONTACT
@@ -263,7 +279,11 @@ class ContentService : IntentService("ContentService") {
             )
         }
 
-        private fun listen(name: String, callback: (context: Context?, Intent?) -> Unit, context: Context) {
+        private fun listen(
+            name: String,
+            callback: (context: Context?, Intent?) -> Unit,
+            context: Context
+        ) {
             val filter = IntentFilter().apply {
                 addAction(name)
             }
@@ -340,6 +360,5 @@ class ContentService : IntentService("ContentService") {
                 context
             )
         }
-
     }
 }
