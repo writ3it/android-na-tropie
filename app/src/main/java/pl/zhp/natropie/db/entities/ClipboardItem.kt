@@ -19,7 +19,7 @@ import org.parceler.ParcelConstructor
 )
 open class ClipboardItem @ParcelConstructor constructor(
     @PrimaryKey(autoGenerate = true)
-    var id: Long,
+    var id: Long?,
     @ColumnInfo(name = "post_id")
     var postId: Long
 ) {

@@ -4,7 +4,6 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Parcelable
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -14,19 +13,17 @@ import kotlinx.android.synthetic.main.app_bar_reader.*
 import kotlinx.android.synthetic.main.content_reader.*
 import org.parceler.Parcels
 import pl.zhp.natropie.db.entities.PostWithColor
-import pl.zhp.natropie.helpers.NaTropiePage
-import pl.zhp.natropie.tracking.Track
 import pl.zhp.natropie.ui.WebView.Reader
-import android.support.v4.app.SupportActivity
-import android.support.v4.app.SupportActivity.ExtraData
-import android.support.v4.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import pl.zhp.natropie.clipboard.ClipboardManager
+import pl.zhp.natropie.db.NaTropieDB
 
 
 open class ReaderActivity : AppCompatActivity() {
 
+    private var menu: Menu? = null
     private var currentPost: PostWithColor? = null
     private lateinit var reader: Reader
+    private lateinit var clipboardManager: ClipboardManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +31,16 @@ open class ReaderActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         reader = Reader(applicationContext, this)
         initView(web_content)
+        clipboardManager = ClipboardManager(NaTropieDB.getInstance(applicationContext)!!)
+    }
+
+    private fun initClipboard() {
+        clipboardManager.exists(currentPost!!, fun(count: Int) {
+            if (count > 0) {
+                val menuItem = toolbar.menu.findItem(R.id.clipboard)
+                setBookmarked(menuItem)
+            }
+        })
     }
 
     private fun initView(webContent: WebView) {
@@ -48,7 +55,16 @@ open class ReaderActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.activity_reader_drawer, menu)
+        initClipboard()
         return true
+    }
+
+    private fun setNotBookmarked(item: MenuItem) {
+        item.icon = getDrawable(R.drawable.ic_bookmark_border_black_24dp)
+    }
+
+    private fun setBookmarked(item: MenuItem) {
+        item.icon = getDrawable(R.drawable.ic_bookmark_black_24dp)
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -59,7 +75,34 @@ open class ReaderActivity : AppCompatActivity() {
         if (item?.itemId == R.id.share) {
             share()
         }
+        if (item?.itemId == R.id.clipboard) {
+            addToClipboard(item)
+        }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun addToClipboard(item: MenuItem) {
+        clipboardManager.exists(currentPost!!, fun(count: Int) {
+            if (count == 0) {
+                clipboardManager.add(currentPost!!)
+                setBookmarked(item)
+                Toast.makeText(
+                    applicationContext,
+                    "Artykuł został zapisany w schowku!",
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            } else {
+                clipboardManager.remove(currentPost!!)
+                Toast.makeText(
+                    applicationContext,
+                    "Artykuł został usunięty ze schowka!",
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+                setNotBookmarked(item)
+            }
+        })
     }
 
     private fun share() {
@@ -71,7 +114,7 @@ open class ReaderActivity : AppCompatActivity() {
         sharingIntent.putExtra(Intent.EXTRA_SUBJECT, currentPost!!.title)
         sharingIntent.putExtra(
             Intent.EXTRA_TEXT,
-           getString(R.string.NT_SHARE_PATTERN).format(currentPost!!.title, currentPost!!.slug)
+            getString(R.string.NT_SHARE_PATTERN).format(currentPost!!.title, currentPost!!.slug)
         )
         startActivity(Intent.createChooser(sharingIntent, "Udostępnij przez"))
     }

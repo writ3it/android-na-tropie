@@ -49,6 +49,7 @@ proguard/
 
 # Google Services (e.g. APIs or Firebase)
 google-services.json
+google-services-dev.json
 
 # Freeline
 freeline.py
