@@ -29,16 +29,27 @@ open class ReaderActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reader)
         setSupportActionBar(toolbar)
-        reader = Reader(applicationContext, this)
-        initView(web_content)
         clipboardManager = ClipboardManager(NaTropieDB.getInstance(applicationContext)!!)
+        reader = Reader(applicationContext, this)
+        reader.onPostChanged = fun(post: PostWithColor): Unit {
+            this.postUpdated(post)
+        }
+        initView(web_content)
+
+    }
+
+    private fun postUpdated(post: PostWithColor) {
+        currentPost = post
+        initClipboard()
     }
 
     private fun initClipboard() {
         clipboardManager.exists(currentPost!!, fun(count: Int) {
+            val menuItem = toolbar.menu.findItem(R.id.clipboard)
             if (count > 0) {
-                val menuItem = toolbar.menu.findItem(R.id.clipboard)
                 setBookmarked(menuItem)
+            } else {
+                setNotBookmarked(menuItem)
             }
         })
     }

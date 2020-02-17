@@ -29,6 +29,8 @@ class Reader(val context: Context, private val activity: AppCompatActivity) : We
     private val scope = CoroutineScope(job + Dispatchers.Main)
     private val table = NaTropieDB.getInstance(context)?.postsRepository()!!
 
+    public var onPostChanged: ((PostWithColor) -> Unit)? = null
+
     override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
         if (!url.startsWith(READER_PREFIX)) {
             //Toast.makeText(context, url, Toast.LENGTH_SHORT).show()
@@ -66,8 +68,15 @@ class Reader(val context: Context, private val activity: AppCompatActivity) : We
                 .setCategory(post.category)
                 .setDate(post.date)
         }
+        onPostChanged?.invoke(post)
         Track.DisplayPost(post.id, post.title, post.author, post.category)
-        webView.loadDataWithBaseURL("file:///android_asset/", doc.getHtml(), "text/html", "UTF-8", "")
+        webView.loadDataWithBaseURL(
+            "file:///android_asset/",
+            doc.getHtml(),
+            "text/html",
+            "UTF-8",
+            ""
+        )
     }
 
     private fun getSlugFromUrl(url: String): String {
