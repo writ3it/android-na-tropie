@@ -45,7 +45,7 @@ open class ReaderActivity : AppCompatActivity() {
 
     private fun initClipboard() {
         clipboardManager.exists(currentPost!!, fun(count: Int) {
-            val menuItem = toolbar.menu.findItem(R.id.clipboard)
+            val menuItem = toolbar.menu.findItem(R.id.clipboard) ?: return
             if (count > 0) {
                 setBookmarked(menuItem)
             } else {
