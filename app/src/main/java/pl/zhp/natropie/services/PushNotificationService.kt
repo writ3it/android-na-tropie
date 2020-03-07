@@ -49,6 +49,7 @@ class PushNotificationService : FirebaseMessagingService() {
     private val stackToDisplay = Stack<RemoteMessage>()
 
     override fun onMessageReceived(message: RemoteMessage?) {
+        Log.i(TAG, "Message received")
         displayNotification(message!!)
         super.onMessageReceived(message)
     }
@@ -90,7 +91,7 @@ class PushNotificationService : FirebaseMessagingService() {
     }
 
     companion object {
-        const val TAG = "PushNotificationService"
+        const val TAG = ">>> PushNotificationService"
         const val VAR_ITEM_ID = "item_id"
     }
 }

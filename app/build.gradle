@@ -13,7 +13,7 @@ android {
         applicationId "pl.zhp.natropie"
         minSdkVersion 23
         targetSdkVersion 28
-        versionCode 20
+        versionCode 21
         versionName '1.1.9'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }

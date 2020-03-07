@@ -108,7 +108,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         Track.initializeWithContext(applicationContext)
         FirebaseMessaging.getInstance().subscribeToTopic(getString(R.string.notification_topic))
             .addOnCompleteListener { task ->
-                Log.d(PushNotificationService.TAG, task.isSuccessful.toString())
+                run {
+                    Log.i(PushNotificationService.TAG, "subscribed")
+                    Log.d(PushNotificationService.TAG, task.isSuccessful.toString())
+                }
             }
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
